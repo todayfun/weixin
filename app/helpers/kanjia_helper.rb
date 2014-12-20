@@ -1,0 +1,2 @@
+module KanjiaHelper
+end
