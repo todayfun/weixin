@@ -1,3 +1,4 @@
+# encoding:utf-8
 require 'digest/sha1'
 
 class KanjiaController < ApplicationController
@@ -21,17 +22,66 @@ class KanjiaController < ApplicationController
         end
       end
     else
-      rsp = %{<xml>
-<ToUserName><![CDATA[toUser]]></ToUserName>
-<FromUserName><![CDATA[fromUser]]></FromUserName>
-<CreateTime>12345678</CreateTime>
-<MsgType><![CDATA[text]]></MsgType>
-<Content><![CDATA[hello]]></Content>
-</xml>}
+      to = params[:xml][:FromUserName]
+      from = params[:xml][:ToUserName]
+      rsp = news_msg(to,from,kanjia_article)
       respond_to do |format|
         format.html {render :text=>rsp}
       end
     end    
   end
-
+  
+  def kanjia
+    respond_to do |format|
+      format.html {render :text=>"kanjia iphone"}
+    end
+  end
+  
+  def kanjia_article
+    article = {
+      :title=>"kanjia iphone",
+      :descritption=>"",
+      :picurl=>"http://img03.taobaocdn.com/bao/uploaded/i3/TB1bBGWGFXXXXc0aXXXXXXXXXXX_!!0-item_pic.jpg",
+      :url=>url_for(:action=>:kanjia)
+    }
+    
+    [article]
+  end
+  
+  def text_msg(to,from,content)
+     rsp = %{<xml>
+    <ToUserName><![CDATA[#{to}]]></ToUserName>
+    <FromUserName><![CDATA[#{from}]]></FromUserName>
+    <CreateTime>#{Time.now.to_i}</CreateTime>
+    <MsgType><![CDATA[text]]></MsgType>
+    <Content><![CDATA[#{content}]]></Content>
+    </xml>}    
+    rsp
+  end
+  
+  def news_msg(to,from,articles)    
+    items = articles.map do |item|
+      %{
+    <item>
+    <Title><![CDATA[#{item[:title]}]]></Title> 
+    <Description><![CDATA[#{item[:description]}]]></Description>
+    <PicUrl><![CDATA[#{item[:picurl]}]]></PicUrl>
+    <Url><![CDATA[#{item[:url]}]]></Url>
+    </item>
+     }
+    end
+    
+    %{
+    <xml>
+    <ToUserName><![CDATA[#{to}]]></ToUserName>
+    <FromUserName><![CDATA[#{from}]]></FromUserName>
+    <CreateTime>#{Time.now.to_i}</CreateTime>
+    <MsgType><![CDATA[news]]></MsgType>
+    <ArticleCount>#{articles.size}</ArticleCount>
+    <Articles>    
+    #{items.join()}
+    </Articles>
+    </xml> 
+    }
+  end
 end
