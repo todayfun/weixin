@@ -6,6 +6,8 @@ class KanjiaController < ApplicationController
   
   TOKEN = "450013807_kanjia"
   EncodingAESKey = "vcUad8cqlPN9fV7FWX0dRNrZ6svGf34yaGITiz5QGX8"
+  APPID = "wxa3342caaeb251f90"
+  SECRET = "1febc2e8f1ce09afdf2dc364c39c2dd9"
   
   def verify    
     str = [TOKEN,params[:timestamp],params[:nonce]].sort.join()
@@ -26,7 +28,7 @@ class KanjiaController < ApplicationController
     else
       to = params[:xml][:FromUserName]
       from = params[:xml][:ToUserName]      
-      content = "kanjia of iphone6 \n <a href='#{url_for :action=>:kanjia,:from=>from,:to=>to}'>wo qu qiang </a>"
+      content = "kanjia of iphone6 \n <a href='#{url_for :action=>:kanjia}'>wo qu qiang </a>"
       rsp = text_msg(to,from,content)
       #rsp = news_msg(to,from,kanjia_article)
       respond_to do |format|
@@ -35,7 +37,27 @@ class KanjiaController < ApplicationController
     end    
   end
   
-  def kanjia
+  def kanjia    
+    # friend view
+    if params[:state]
+      code = params[:code]      
+
+      openid = ""
+      if code.nil?
+        str = "get openid authorize fail"
+      else
+        @access_url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}
+        rsp = Net::HTTP.get(URI.parse(@access_url))
+        json = ActiveSupport::JSON.decode(rsp)
+        openid = json["openid"]
+        Rails.logger.info("friend openid #{openid},rsp:#{rsp}")
+      end
+    end
+    
+    scope='snsapi_base'
+    back_url=url_for(:action=>:kanjia)            
+    @share_url = %{https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{APPID}&redirect_uri=#{back_url}&response_type=code&scope=#{scope}&state=1#wechat_redirect}     
+    
     respond_to do |format|
       format.html
     end
