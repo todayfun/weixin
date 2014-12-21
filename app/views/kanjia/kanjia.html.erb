@@ -18,6 +18,16 @@
       }
     }
     
+    function detectWeixinApi(callback){
+        if(typeof window.WeixinJSBridge == 'undefined' || typeof window.WeixinJSBridge.invoke == 'undefined'){
+            setTimeout(function(){
+                detectWeixinApi(callback);
+            },200);
+        }else{
+            callback();
+        }
+    }
+
     function WeiXinShare() {
       if (typeof WeixinJSBridge == "undefined") {
       alert("要在微信浏览器中打开");
@@ -40,7 +50,7 @@
       }
     }
     
-    WeiXinShare();    
+    detectWeixinApi(WeiXinShare);    
   </script>
 </head>
 <body>  
