@@ -18,45 +18,52 @@
       }
     }
     
-    function detectWeixinApi(callback){
-        if(typeof window.WeixinJSBridge == 'undefined' || typeof window.WeixinJSBridge.invoke == 'undefined'){
-            setTimeout(function(){
-                detectWeixinApi(callback);
-            },200);
-        }else{
-            callback();
-        }
+    var appid = '';//填入你的appid
+    var shareTitle = 'title:劲爆，0元拿iPhone6';
+    var descContent = "砍价，0元拿iPhone6！";
+    var lineLink = 'http://42.121.128.45/kanjia/kanjia';
+    var imgUrl = 'http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg';
+
+    function shareFriend() {
+      WeixinJSBridge.invoke('sendAppMessage',{
+      "appid": appid,
+      "img_url": imgUrl,
+      "img_width": "640",
+      "img_height": "640",
+      "link": lineLink,
+      "desc": descContent,
+      "title": shareTitle
+      }, function(res) {
+      _report('send_msg', res.err_msg);
+      })
+    }
+    function shareTimeline() {
+      WeixinJSBridge.invoke('shareTimeline',{
+      "img_url": imgUrl,
+      "img_width": "640",
+      "img_height": "640",
+      "link": lineLink,
+      "desc": descContent,
+      "title": shareTitle
+      }, function(res) {
+      _report('timeline', res.err_msg);
+      });
     }
 
-    function WeiXinShare() {
-      if (typeof WeixinJSBridge == "undefined") {
-      alert("要在微信浏览器中打开");
-      } else {
-        alert("detected WeixinJSBridge!")
-        
-        // 分享到朋友圈
-        WeixinJSBridge.invoke('shareTimeline', {
-        "title": "title:劲爆，0元拿iPhone6",
-        "link": "http://42.121.128.45/kanjia/kanjia",
-        "desc": "砍价，0元拿iPhone6",
-        "img_url": "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg"
-        }, function(res) {
-        _report('timeline', res.err_msg);
-        });
-      
-        // 分享给朋友
-        WeixinJSBridge.invoke('sendAppMessage', {
-        "title": "title:劲爆，0元拿iPhone6",
-        "link": "http://42.121.128.45/kanjia/kanjia",
-        "desc": "砍价，0元拿iPhone6",
-        "img_url": "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg"
-        }, function(res) {
-        _report('timeline', res.err_msg);
-        });
-      }
-    }
-    
-    detectWeixinApi(WeiXinShare);    
+    // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
+    document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+
+    // 发送给好友
+    WeixinJSBridge.on('menu:share:appmessage', function(argv){
+    shareFriend();
+    });
+
+    // 分享到朋友圈
+    WeixinJSBridge.on('menu:share:timeline', function(argv){
+    shareTimeline();
+    });
+
+    }, false);   
   </script>
 </head>
 <body>  
