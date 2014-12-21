@@ -35,7 +35,7 @@
       "title": shareTitle
       }, function(res) {
       _report('send_msg', res.err_msg);
-      })
+      });
     }
     function shareTimeline() {
       WeixinJSBridge.invoke('shareTimeline',{
