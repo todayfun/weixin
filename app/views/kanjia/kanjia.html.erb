@@ -21,7 +21,7 @@
     var appid = '';//填入你的appid
     var shareTitle = 'title:劲爆，0元拿iPhone6';
     var descContent = "砍价，0元拿iPhone6！";
-    var lineLink = '<%= @share_url %> ';
+    var lineLink = '<%= @share_url.html_safe %> ';
     var imgUrl = 'http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg';
 
     function shareFriend() {
@@ -69,9 +69,7 @@
      // 分享到朋友圈
      WeixinJSBridge.on('menu:share:timeline', function(argv){
      shareTimeline();
-     });
-     
-     WeixinAPIs();
+     });     
     }
     // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
     if (typeof WeixinJSBridge == "undefined"){
