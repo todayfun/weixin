@@ -3,9 +3,45 @@
   <title>Kanjia iphone6 title</title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
-  <%= csrf_meta_tags %>
-  <meta content="kanjia iphone6 meta" name="description">
+  <%= csrf_meta_tags %>  
   <div>Kanjia Head</div>
+  <script>
+    function isWeiXin(){ 
+     var useragent = navigator.userAgent;
+     if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
+        // 这里警告框会阻塞当前页面继续加载
+        alert('已禁止本次访问：您必须使用微信内置浏览器访问本页面！');
+        // 以下代码是用javascript强行关闭当前页面
+        var opened = window.open('about:blank', '_self');
+        opened.opener = null;
+        opened.close();
+      }
+    }
+    
+    function WeiXinShare() {
+      if (typeof WeixinJSBridge == "undefined") {
+      alert("要在微信浏览器中打开");
+      } else {
+        // 分享到朋友圈
+        WeixinJSBridge.invoke('shareTimeline', {
+        "title": "title:劲爆，0元拿iPhone6",
+        "link": "http://42.121.128.45/kanjia/kanjia",
+        "desc": "砍价，0元拿iPhone6",
+        "img_url": "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg"
+        });
+      
+        // 分享给朋友
+        WeixinJSBridge.invoke('sendAppMessage', {
+        "title": "title:劲爆，0元拿iPhone6",
+        "link": "http://42.121.128.45/kanjia/kanjia",
+        "desc": "砍价，0元拿iPhone6",
+        "img_url": "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg"
+        });
+      }
+    }
+    
+    WeiXinShare();    
+  </script>
 </head>
 <body>  
   <div>
@@ -17,4 +53,5 @@
     kanjia footer
   </div>
 </body>
+
 </html>
