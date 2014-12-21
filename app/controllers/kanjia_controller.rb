@@ -2,6 +2,8 @@
 require 'digest/sha1'
 
 class KanjiaController < ApplicationController
+  layout false
+  
   TOKEN = "450013807_kanjia"
   EncodingAESKey = "vcUad8cqlPN9fV7FWX0dRNrZ6svGf34yaGITiz5QGX8"
   
@@ -25,6 +27,8 @@ class KanjiaController < ApplicationController
       to = params[:xml][:FromUserName]
       from = params[:xml][:ToUserName]
       rsp = news_msg(to,from,kanjia_article)
+      content = "kanjia of iphone6 \n <a href='#{url_for :action=>:kanjia,:from=>from,:to=>to}'>wo qu qiang </a>"
+      
       respond_to do |format|
         format.html {render :text=>rsp}
       end
@@ -33,7 +37,7 @@ class KanjiaController < ApplicationController
   
   def kanjia
     respond_to do |format|
-      format.html {render :text=>"kanjia iphone"}
+      format.html
     end
   end
   
@@ -41,13 +45,13 @@ class KanjiaController < ApplicationController
     article = {
       :title=>"kanjia iphone",
       :descritption=>"",
-      :picurl=>"http://img03.taobaocdn.com/bao/uploaded/i3/TB1bBGWGFXXXXc0aXXXXXXXXXXX_!!0-item_pic.jpg",
+      :picurl=>"http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg",
       :url=>url_for(:action=>:kanjia)
     }
     
     [article]
   end
-  
+    
   def text_msg(to,from,content)
      rsp = %{<xml>
     <ToUserName><![CDATA[#{to}]]></ToUserName>
