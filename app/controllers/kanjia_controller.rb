@@ -25,10 +25,10 @@ class KanjiaController < ApplicationController
       end
     else
       to = params[:xml][:FromUserName]
-      from = params[:xml][:ToUserName]
-      rsp = news_msg(to,from,kanjia_article)
+      from = params[:xml][:ToUserName]      
       content = "kanjia of iphone6 \n <a href='#{url_for :action=>:kanjia,:from=>from,:to=>to}'>wo qu qiang </a>"
-      
+      rsp = text_msg(to,form,content)
+      #rsp = news_msg(to,from,kanjia_article)
       respond_to do |format|
         format.html {render :text=>rsp}
       end
