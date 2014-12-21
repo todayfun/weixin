@@ -56,7 +56,7 @@ class KanjiaController < ApplicationController
     
     scope='snsapi_base'
     back_url=url_for(:action=>:kanjia)            
-    @share_url = %{https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{APPID}&redirect_uri=#{back_url}&response_type=code&scope=#{scope}&state=1#wechat_redirect}     
+    @share_url = %{https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{APPID}&redirect_uri=#{CGI.escape(back_url)}&response_type=code&scope=#{scope}&state=1#wechat_redirect}     
     
     respond_to do |format|
       format.html
