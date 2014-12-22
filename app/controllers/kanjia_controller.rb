@@ -59,6 +59,17 @@ class KanjiaController < ApplicationController
         json = ActiveSupport::JSON.decode(rsp.body)
         openid = json["openid"]
         Rails.logger.info("friend openid #{openid}")
+        
+        # get user info
+        access_token = json["access_token"]
+        url = %{https://api.weixin.qq.com/cgi-bin/user/info?access_token=#{access_token}&openid=#{openid}&lang=zh_CN}
+        uri = URI.parse(url)
+        https = Net::HTTP.new(uri.host,uri.port)
+        https.use_ssl = true
+        req = Net::HTTP::Get.new(uri.request_uri)        
+        rsp = https.request(req)        
+        userjson = ActiveSupport::JSON.decode(rsp.body)
+        Rails.logger.info("user info:#{rsp.body}")
       end
     end
     
