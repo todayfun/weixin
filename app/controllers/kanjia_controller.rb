@@ -5,8 +5,9 @@ require 'net/http'
 require 'net/https'
 
 class KanjiaController < ApplicationController
-  layout false 
-  
+  layout false
+  helper :kanjia
+    
   def verify    
     if request.get?
       if WeixinHelper.is_valid?(params[:signature], params[:timestamp],params[:nonce])
@@ -33,12 +34,18 @@ class KanjiaController < ApplicationController
   
   # /kanjia?game=guid for view
   # /kanjia?play=guid for play
-  # /kanjia?play=guid for join
+  # /kanjia?launch=openid for start
   def kanjia
     # get current openid
     openid = ""
     openid = WeixinHelper.query_openid(params[:code]) if params[:state]    
-    @share_url = WeixinHelper.share_link(request.url)
+    
+    uri = URI.parse(request.url)
+    uri_query = CGI.parse(uri.query)
+    uri_query.delete("code")
+    uri_query.delete("state")
+    uri.query = URI.encode(uri_query.map{|k,v| "#{k}=#{v}"}.join("&")) 
+    @share_url = WeixinHelper.share_link(uri.to_s)
     
     # get current command
     @cmd = "gameview"    
@@ -65,7 +72,7 @@ class KanjiaController < ApplicationController
             end
           else
             if owner==openid
-              @label = "自砍一刀"
+              @label = play_game_url("自砍一刀",uri,openid)
               @links = ["查看砍价规则","查看砍价排行"]
             else
               @label = "帮TA砍价"
@@ -81,7 +88,7 @@ class KanjiaController < ApplicationController
         game = Game.find_by_guid params[:game]      
         if game
           @cmd = "gameview"
-          @label = "参与砍价"
+          @label = launch_game_url("参与砍价",uri,openid)
           @title = "原始价格"
           @links = ["查看砍价规则","查看砍价排行"]
         else
