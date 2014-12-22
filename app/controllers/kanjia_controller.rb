@@ -1,5 +1,6 @@
 # encoding:utf-8
 require 'digest/sha1'
+require 'net/http'
 
 class KanjiaController < ApplicationController
   layout false
