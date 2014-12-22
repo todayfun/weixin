@@ -5,21 +5,11 @@ require 'net/http'
 require 'net/https'
 
 class KanjiaController < ApplicationController
-  layout false
-  
-  TOKEN = "450013807_kanjia"
-  EncodingAESKey = "vcUad8cqlPN9fV7FWX0dRNrZ6svGf34yaGITiz5QGX8"
-  APPID = "wxa3342caaeb251f90"
-  SECRET = "1febc2e8f1ce09afdf2dc364c39c2dd9"
+  layout false 
   
   def verify    
-    str = [TOKEN,params[:timestamp],params[:nonce]].sort.join()
-    sha1 = Digest::SHA1.hexdigest(str)
-    
-    Rails.logger.info("str:#{str},sig:#{sha1}, signature:#{params[:signature]}")
-    
     if request.get?
-      if sha1 == params[:signature]
+      if Weixin.is_valid?(params[:signature], params[:timestamp],params[:nonce])
         respond_to do |format|
           format.html {render :text=>params[:echostr]}
         end
@@ -31,110 +21,79 @@ class KanjiaController < ApplicationController
     else
       to = params[:xml][:FromUserName]
       from = params[:xml][:ToUserName]      
-      content = "kanjia of iphone6 \n <a href='#{url_for :action=>:kanjia}'>wo qu qiang </a>"
-      rsp = text_msg(to,from,content)
-      #rsp = news_msg(to,from,kanjia_article)
+      Fans.subscribe_by(from)
+      
+      msg = Weixin.echo_game(to,from,url_for(:action=>:kanjia,:game=>"guid"))
+      
       respond_to do |format|
-        format.html {render :text=>rsp}
+        format.html {render :text=>msg}
       end
     end    
   end
   
-  def kanjia    
-    # friend view
-    if params[:state]
-      code = params[:code]      
+  # /kanjia?game=guid for view
+  # /kanjia?play=guid for play
+  # /kanjia?play=guid for join
+  def kanjia
+    # get current openid
+    openid = ""
+    openid = Weixin.query_openid(params[:code]) if params[:state]    
+    @share_url = Weixin.share_link(request.full_path)
+    
+    # get current command
+    @cmd = "gameview"    
+    @play = nil
+    @label = ""
+    @links = []
+    @title = ""
+    if openid.empty?    
+      @cmd = "invalid"
+      @label = "openid is empty"
+    else      
+      if params[:play]      
+        @play = Play.find_by_guid params[:play]
+        if @play
+          @cmd = "play"
+          owner = @play.owner        
+          game = Game.find_by_guid @play.game_guid
 
-      openid = ""
-      if code.nil?
-        str = "get openid authorize fail"
-      else
-        url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}
-        Rails.logger.info("access_token url:#{url}")      
-        json = weixin_https_get(url)
-        openid = json["openid"]
-        Rails.logger.info("friend openid #{openid}")                
+          @title = "当前战绩"
+          if @play.friends.include?(openid)            
+            @label = "您已经砍过了，明天再来"
+            if owner==openid
+              @links = ["找朋友帮我砍","我的砍价列表"]                         
+            end
+          else
+            if owner==openid
+              @label = "自砍一刀"
+              @links = ["查看砍价规则","查看砍价排行"]
+            else
+              @label = "帮TA砍价"
+              @links = ["我也要0元拿"]
+            end            
+          end          
+        else
+          @cmd = "invalid"
+          @label = "cant found play"
+        end
+      elsif params[:game]
+        @cmd = "gameview"
+        game = Game.find_by_guid params[:game]      
+        if game
+          @cmd = "gameview"
+          @label = "参与砍价"
+          @title = "原始价格"
+          @links = ["查看砍价规则","查看砍价排行"]
+        else
+          @cmd = "invalid"
+          @label = "cant found game"
+        end
       end
     end
-    
-    scope='snsapi_base'
-    back_url=url_for(:action=>:kanjia)            
-    @share_url = %{https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{APPID}&redirect_uri=#{CGI.escape(back_url)}&response_type=code&scope=#{scope}&state=1#wechat_redirect}     
     
     respond_to do |format|
       format.html
     end
   end
-  
-  def kanjia_article
-    article = {
-      :title=>"kanjia iphone",
-      :descritption=>"",
-      :picurl=>"http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg",
-      :url=>url_for(:action=>:kanjia)
-    }
-    
-    [article]
-  end
-    
-  def text_msg(to,from,content)
-     rsp = %{<xml>
-    <ToUserName><![CDATA[#{to}]]></ToUserName>
-    <FromUserName><![CDATA[#{from}]]></FromUserName>
-    <CreateTime>#{Time.now.to_i}</CreateTime>
-    <MsgType><![CDATA[text]]></MsgType>
-    <Content><![CDATA[#{content}]]></Content>
-    </xml>}    
-    rsp
-  end
-  
-  def news_msg(to,from,articles)    
-    items = articles.map do |item|
-      %{
-    <item>
-    <Title><![CDATA[#{item[:title]}]]></Title> 
-    <Description><![CDATA[#{item[:description]}]]></Description>
-    <PicUrl><![CDATA[#{item[:picurl]}]]></PicUrl>
-    <Url><![CDATA[#{item[:url]}]]></Url>
-    </item>
-     }
-    end
-    
-    %{
-    <xml>
-    <ToUserName><![CDATA[#{to}]]></ToUserName>
-    <FromUserName><![CDATA[#{from}]]></FromUserName>
-    <CreateTime>#{Time.now.to_i}</CreateTime>
-    <MsgType><![CDATA[news]]></MsgType>
-    <ArticleCount>#{articles.size}</ArticleCount>
-    <Articles>    
-    #{items.join()}
-    </Articles>
-    </xml> 
-    }
-  end
-
-  # make https request to weixin, get json
-  def weixin_https_get(url)
-    uri = URI.parse(url)
-    https = Net::HTTP.new(uri.host,uri.port)
-    https.use_ssl = true
-    req = Net::HTTP::Get.new(uri.request_uri)        
-    rsp=https.request(req)
-    
-    ActiveSupport::JSON.decode(rsp.body)
-  end
-  
-  # get userinfo json by openid
-  def userinfo_by_openid(openid)
-    # get user info
-    url = %{https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=#{APPID}&secret=#{SECRET}}
-    json = weixin_https_get(url)    
-
-    access_token = json["access_token"]
-    url = %{https://api.weixin.qq.com/cgi-bin/user/info?access_token=#{access_token}&openid=#{openid}&lang=zh_CN}                     
-    json = weixin_https_get(url)   
-    
-    json
-  end
+      
 end
