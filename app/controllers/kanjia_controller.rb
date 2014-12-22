@@ -38,7 +38,7 @@ class KanjiaController < ApplicationController
     # get current openid
     openid = ""
     openid = WeixinHelper.query_openid(params[:code]) if params[:state]    
-    @share_url = WeixinHelper.share_link(request.full_path)
+    @share_url = WeixinHelper.share_link(request.url)
     
     # get current command
     @cmd = "gameview"    
