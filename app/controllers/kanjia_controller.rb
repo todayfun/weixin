@@ -1,6 +1,8 @@
 # encoding:utf-8
 require 'digest/sha1'
+require 'uri'
 require 'net/http'
+require 'net/https'
 
 class KanjiaController < ApplicationController
   layout false
@@ -48,10 +50,15 @@ class KanjiaController < ApplicationController
         str = "get openid authorize fail"
       else
         @access_url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}
-        rsp = Net::HTTP.get(URI.parse(@access_url))
-        json = ActiveSupport::JSON.decode(rsp)
+        Rails.logger.info("access_token url:#{@access_url}")
+        uri = URI.parse(@access_url)
+        https = Net::HTTP.new(uri.host,uri.port)
+        https.use_ssl = true
+        req = Net::HTTP::Get.new(uri.request_uri)        
+        rsp = https.request(req)        
+        json = ActiveSupport::JSON.decode(rsp.body)
         openid = json["openid"]
-        Rails.logger.info("friend openid #{openid},rsp:#{rsp}")
+        Rails.logger.info("friend openid #{openid}")
       end
     end
     
