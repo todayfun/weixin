@@ -10,6 +10,10 @@ class Weixin
   APPID = "wxa3342caaeb251f90"
   SECRET = "1febc2e8f1ce09afdf2dc364c39c2dd9"
   
+  def self.guid
+    Digest::SHA1.hexdigest("#{Time.now.to_i},#{rand()}")
+  end
+  
   def self.is_valid?(sig,timestamp,nonce)
     str = [TOKEN,timestamp,nonce].sort.join()
     sha1 = Digest::SHA1.hexdigest(str)
