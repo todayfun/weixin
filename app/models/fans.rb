@@ -7,7 +7,7 @@ class Fans < ActiveRecord::Base
     
     fans = Fans.new
     fans.openid = openid
-    json = Weixin.query_userinfo(openid)
+    json = WeixinHelper.query_userinfo(openid)
     return nil if json["nickname"].nil?
     
     fans.nickname = json["nickname"]

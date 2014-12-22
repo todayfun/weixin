@@ -7,7 +7,7 @@ class Game < ActiveRecord::Base
     
     unless game
       game = Game.new
-      game.guid = Weixin.guid
+      game.guid = WeixinHelper.guid
       game.title = "kanjia iphone6"
       game.banner = "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg"
       game.wxdata = {

@@ -9,7 +9,7 @@ class KanjiaController < ApplicationController
   
   def verify    
     if request.get?
-      if Weixin.is_valid?(params[:signature], params[:timestamp],params[:nonce])
+      if WeixinHelper.is_valid?(params[:signature], params[:timestamp],params[:nonce])
         respond_to do |format|
           format.html {render :text=>params[:echostr]}
         end
@@ -23,7 +23,7 @@ class KanjiaController < ApplicationController
       from = params[:xml][:ToUserName]      
       Fans.subscribe_by(from)
       
-      msg = Weixin.echo_game(to,from,url_for(:action=>:kanjia,:game=>Game.default.guid))
+      msg = WeixinHelper.echo_game(to,from,url_for(:action=>:kanjia,:game=>Game.default.guid))
       
       respond_to do |format|
         format.html {render :text=>msg}
@@ -37,8 +37,8 @@ class KanjiaController < ApplicationController
   def kanjia
     # get current openid
     openid = ""
-    openid = Weixin.query_openid(params[:code]) if params[:state]    
-    @share_url = Weixin.share_link(request.full_path)
+    openid = WeixinHelper.query_openid(params[:code]) if params[:state]    
+    @share_url = WeixinHelper.share_link(request.full_path)
     
     # get current command
     @cmd = "gameview"    

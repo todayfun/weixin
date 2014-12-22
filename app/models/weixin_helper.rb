@@ -4,7 +4,7 @@ require 'net/http'
 require 'net/https'
 require 'digest/sha1'
 
-class Weixin
+class WeixinHelper
   TOKEN = "450013807_kanjia"
   EncodingAESKey = "vcUad8cqlPN9fV7FWX0dRNrZ6svGf34yaGITiz5QGX8"
   APPID = "wxa3342caaeb251f90"
