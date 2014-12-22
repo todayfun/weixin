@@ -49,36 +49,11 @@ class KanjiaController < ApplicationController
       if code.nil?
         str = "get openid authorize fail"
       else
-        @access_url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}
-        Rails.logger.info("access_token url:#{@access_url}")
-        uri = URI.parse(@access_url)
-        https = Net::HTTP.new(uri.host,uri.port)
-        https.use_ssl = true
-        req = Net::HTTP::Get.new(uri.request_uri)        
-        rsp = https.request(req)        
-        json = ActiveSupport::JSON.decode(rsp.body)
+        url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}
+        Rails.logger.info("access_token url:#{url}")      
+        json = weixin_https_get(url)
         openid = json["openid"]
-        Rails.logger.info("friend openid #{openid}")
-        
-        # get user info
-        url = %{https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=#{APPID}&secret=#{SECRET}}
-        uri = URI.parse(url)
-        https = Net::HTTP.new(uri.host,uri.port)
-        https.use_ssl = true
-        req = Net::HTTP::Get.new(uri.request_uri)        
-        rsp = https.request(req)        
-        json = ActiveSupport::JSON.decode(rsp.body)
-        Rails.logger.info("token:#{rsp.body}")
-        
-        access_token = json["json"]
-        url = %{https://api.weixin.qq.com/cgi-bin/user/info?access_token=#{access_token}&openid=#{openid}&lang=zh_CN}
-        uri = URI.parse(url)
-        https = Net::HTTP.new(uri.host,uri.port)
-        https.use_ssl = true
-        req = Net::HTTP::Get.new(uri.request_uri)        
-        rsp = https.request(req)        
-        userjson = ActiveSupport::JSON.decode(rsp.body)
-        Rails.logger.info("user info:#{rsp.body}")
+        Rails.logger.info("friend openid #{openid}")                
       end
     end
     
@@ -137,5 +112,29 @@ class KanjiaController < ApplicationController
     </Articles>
     </xml> 
     }
+  end
+
+  # make https request to weixin, get json
+  def weixin_https_get(url)
+    uri = URI.parse(url)
+    https = Net::HTTP.new(uri.host,uri.port)
+    https.use_ssl = true
+    req = Net::HTTP::Get.new(uri.request_uri)        
+    rsp=https.request(req)
+    
+    ActiveSupport::JSON.decode(rsp.body)
+  end
+  
+  # get userinfo json by openid
+  def userinfo_by_openid(openid)
+    # get user info
+    url = %{https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=#{APPID}&secret=#{SECRET}}
+    json = weixin_https_get(url)    
+
+    access_token = json["access_token"]
+    url = %{https://api.weixin.qq.com/cgi-bin/user/info?access_token=#{access_token}&openid=#{openid}&lang=zh_CN}                     
+    json = weixin_https_get(url)   
+    
+    json
   end
 end
