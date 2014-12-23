@@ -37,7 +37,7 @@ class KanjiaController < ApplicationController
     @label = ""
     @links = []
     @title = ""
-    @share_link = ""
+    @share_url = ""
     
     redirect_url = nil
     cmd = params[:cmd]
@@ -50,7 +50,7 @@ class KanjiaController < ApplicationController
       game = Game.find_by_guid(params[:game])
       if game        
         @title = "原始价格"
-        @label = view_context.link_to("参与砍价",Weixin.with_auth(url_for(:game=>game.guid,:cmd=>"gamelaunch")))
+        @label = view_context.link_to("参与砍价",WeixinHelper.with_auth(url_for(:game=>game.guid,:cmd=>"gamelaunch")))
         @share_url = url_for(:game=>game.guid,:cmd=>"gameview")
         @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
       else          
@@ -101,7 +101,7 @@ class KanjiaController < ApplicationController
         play = Play.find_by_guid params[:play]
         if play          
           @title = "当前战绩"
-          @share_link = Weixin.with_auth(url_for(:action=>"kanjia",:play=>play.guid,:cmd=>"playview"))
+          @share_url = WeixinHelper.with_auth(url_for(:action=>"kanjia",:play=>play.guid,:cmd=>"playview"))
           
           owner = play.owner
           if play.friends.include?(openid)            
@@ -111,10 +111,10 @@ class KanjiaController < ApplicationController
             end
           else
             if owner==openid
-              @label = view_context.link_to("自砍一刀",Weixin.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
+              @label = view_context.link_to("自砍一刀",WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
               @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
             else
-              @label = view_context.link_to("帮TA砍价",Weixin.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
+              @label = view_context.link_to("帮TA砍价",WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
               @links = [view_context.link_to("我也要0元拿",url_for(:game=>game.guid,:cmd=>"gameview"))]
             end
           end

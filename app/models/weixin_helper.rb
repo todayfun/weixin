@@ -48,7 +48,7 @@ class WeixinHelper
   end
   
   def self.query_openid(code)
-    return nil if code.empty?
+    return nil if code.blank?
     
     url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}    
     json = https_get(url)
