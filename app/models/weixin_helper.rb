@@ -44,6 +44,7 @@ class WeixinHelper
     url = %{https://api.weixin.qq.com/cgi-bin/user/info?access_token=#{access_token}&openid=#{openid}&lang=zh_CN}                     
     json = https_get(url)   
     
+    Rails.logger.info("WeixinHelper.query_userinfo: #{json.to_s}")
     json
   end
   
@@ -52,6 +53,8 @@ class WeixinHelper
     
     url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}    
     json = https_get(url)
+    
+    Rails.logger.info("WeixinHelper.query_openid #{json.to_s}")
     json["openid"]
   end
   

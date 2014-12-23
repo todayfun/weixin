@@ -61,7 +61,7 @@ class KanjiaController < ApplicationController
     # link: kanjia?game=guid&cmd=gamelaunch
     # subscribe?：redirect_to weixin_auth(kanjia?play=guid&cmd=playview)
     # unsubscribe?：redirect_to subscribe
-    when "launchgame"
+    when "gamelaunch"
       openid = WeixinHelper.query_openid(params[:code])
       
       if openid
