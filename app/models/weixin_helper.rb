@@ -48,20 +48,21 @@ class WeixinHelper
   end
   
   def self.query_openid(code)
+    return nil if code.empty?
+    
     url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}    
     json = https_get(url)
     json["openid"]
   end
   
   def self.echo_game(to,from,url)
-    url = share_link(url)
     content = "kanjia of iphone6 \n <a href='#{url}'>wo qu qiang </a>"
     msg = text_msg(to,from,content)
     
     msg
   end
   
-  def self.share_link(url)     
+  def self.with_auth(url)     
     url = %{https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{APPID}&redirect_uri=#{CGI.escape(url)}&response_type=code&scope=snsapi_base&state=1#wechat_redirect}
     url
   end
