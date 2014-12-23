@@ -132,7 +132,7 @@ class KanjiaController < ApplicationController
     when "doplay"
       openid = WeixinHelper.query_openid(params[:code])
       if openid
-        play = Play.find_by_guid(params[:guid])
+        play = Play.find_by_guid(params[:play])
         if play
           @label = "do play"
           redirect_url = WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"playview")) 
