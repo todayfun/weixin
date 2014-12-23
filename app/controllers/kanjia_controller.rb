@@ -7,8 +7,7 @@ require 'net/https'
 class KanjiaController < ApplicationController
   layout false
   helper :kanjia
-  include ActionView::Helpers::UrlHelper
-    
+        
   def verify    
     if request.get?
       if WeixinHelper.is_valid?(params[:signature], params[:timestamp],params[:nonce])
@@ -40,6 +39,7 @@ class KanjiaController < ApplicationController
     @title = ""
     @share_link = ""
     
+    redirect_url = nil
     cmd = params[:cmd]
     case cmd
     # gameview 
@@ -50,9 +50,9 @@ class KanjiaController < ApplicationController
       game = Game.find_by_guid(params[:game])
       if game        
         @title = "原始价格"
-        @label = link_to("参与砍价",Weixin.with_auth(url_for(:game=>game.guid,:cmd=>"gamelaunch")))
+        @label = view_context.link_to("参与砍价",Weixin.with_auth(url_for(:game=>game.guid,:cmd=>"gamelaunch")))
         @share_url = url_for(:game=>game.guid,:cmd=>"gameview")
-        @links = [link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
+        @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
       else          
         @label = "#{cmd} fail: cant found game"        
       end
@@ -79,15 +79,13 @@ class KanjiaController < ApplicationController
             end
             
             @label = "game launched!"
-            redirect_to WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"playview"))
-            return
+            redirect_url = WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"playview"))            
           else
             @label = "#{cmd} fail: cant found game"
           end
         else
           @label = "#{cmd} fail: 还没订阅公众号"
-          redirect_to url_for(:action=>"subscribe")
-          return
+          redirect_url = url_for(:action=>"subscribe")          
         end
       else
         @label = "#{cmd} fail: cant get openid"
@@ -109,15 +107,15 @@ class KanjiaController < ApplicationController
           if play.friends.include?(openid)            
             @label = "您已经砍过了，明天再来"
             if owner==openid
-              @links = ["找朋友帮我砍",link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]                         
+              @links = ["找朋友帮我砍",view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]                         
             end
           else
             if owner==openid
-              @label = link_to("自砍一刀",Weixin.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
-              @links = [link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
+              @label = view_context.link_to("自砍一刀",Weixin.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
+              @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
             else
-              @label = link_to("帮TA砍价",Weixin.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
-              @links = [link_to("我也要0元拿",url_for(:game=>game.guid,:cmd=>"gameview"))]
+              @label = view_context.link_to("帮TA砍价",Weixin.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
+              @links = [view_context.link_to("我也要0元拿",url_for(:game=>game.guid,:cmd=>"gameview"))]
             end
           end
         else          
@@ -137,7 +135,7 @@ class KanjiaController < ApplicationController
         play = Play.find_by_guid(params[:guid])
         if play
           @label = "do play"
-          redirect_to WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"playview")) 
+          redirect_url = WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"playview")) 
         else
           @label = "#{cmd} fail: cant found play"
         end
@@ -148,8 +146,14 @@ class KanjiaController < ApplicationController
       @label = "invalid cmd"
     end        
     
-    respond_to do |format|
-      format.html
+    if redirect_url
+      respond_to do |format|
+        format.html {redirect_to redirect_url, :notice=>@label}
+      end
+    else
+      respond_to do |format|
+        format.html
+      end
     end
   end
   
