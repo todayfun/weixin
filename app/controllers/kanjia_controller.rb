@@ -63,7 +63,7 @@ class KanjiaController < ApplicationController
             @share_url = WeixinHelper.with_auth(url_for(:game=>game.guid,:cmd=>"gameview"))
             @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
           end          
-        else          
+        else
           @label = "#{cmd} fail: cant found game"        
         end
 
@@ -117,7 +117,7 @@ class KanjiaController < ApplicationController
               @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
             else
               @label = view_context.link_to("帮TA砍价",WeixinHelper.with_auth(url_for(:play=>play.guid,:cmd=>"doplay")))
-              @links = [view_context.link_to("我也要0元拿",url_for(:game=>game.guid,:cmd=>"gameview"))]
+              @links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
             end
           end
         else          
