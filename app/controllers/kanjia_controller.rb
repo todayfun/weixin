@@ -95,8 +95,8 @@ class KanjiaController < ApplicationController
       elsif "playview"==cmd && openid
         play = Play.find_by_guid params[:play]
         if play
-          @title = flash[:doplay]
-          @title ||= "当前战绩"
+          msg = flash[:doplay]
+          @title = msg||"当前战绩:#{play.args.to_json}"
           @share_url = url_for(:play=>play.guid,:cmd=>"playview")
 
           owner = play.owner
@@ -212,53 +212,54 @@ class KanjiaController < ApplicationController
       cnt = friends.size
 
       if cnt >= 2000
-        msg = "砍价超过了2000次，还没有砍到0元，挑战失败"
-        return msg
-      end
-
-      # 以分为单位，变成整数运算
-      discount = case cnt
-      when 0
-        100000+rand(100000) # 1000-2000
-      when 2..6
-        10000+rand(10000) # 100-200
-      when 7..16
-        1000+rand(9000) # 10-100
-      when 17..66
-        1000+rand(1000) # 10-20
-      when 67..166
-        500+rand(500) # 5-10
-      when 167..366
-        100+rand(400) # 1-5
-      when 367..966
-        10+rand(90) # 0.1-1
-      when 967..2000
-        1+rand(9) # 0.01-0.1
+        msg = "砍价超过了2000次，还没有砍到0元，挑战失败"        
       else
-        0
+        # 以分为单位，变成整数运算
+        discount = case cnt
+        when 0
+          100000+rand(100000) # 1000-2000
+        when 2..6
+          10000+rand(10000) # 100-200
+        when 7..16
+          1000+rand(9000) # 10-100
+        when 17..66
+          1000+rand(1000) # 10-20
+        when 67..166
+          500+rand(500) # 5-10
+        when 167..366
+          100+rand(400) # 1-5
+        when 367..966
+          10+rand(90) # 0.1-1
+        when 967..2000
+          1+rand(9) # 0.01-0.1
+        else
+          0
+        end
+
+        now = Time.now
+        key = "#{openid},#{now.to_date.to_s}"
+        if args["current_price"] > discount
+          args["current_price"] -= discount
+        else
+          discount = args["current_price"]
+          args["current_price"] = 0
+          play.status = "CLOSED"
+          play.end_at = now
+        end
+
+        args["discount"] = args["origin_price"] - args["current_price"]    
+        friend_plays << [openid,discount,now]
+        friends << key
+        msg = "砍掉了#{discount/100.0}元！"
+
+        play.args = args
+        play.friends = friends
+        play.friend_plays = friend_plays
+        play.save
       end
-
-      now = Time.now
-      key = "#{openid},#{now.to_date.to_s}"
-      if args["current_price"] > discount
-        args["current_price"] -= discount
-      else
-        discount = args["current_price"]
-        args["current_price"] = 0
-        play.status = "CLOSED"
-        play.end_at = now
-      end
-
-      args["discount"] = args["origin_price"] - args["current_price"]    
-      friend_plays << [openid,discount,now]
-      friends << key
-      msg = "砍掉了#{discount/100.0}元！"
-
-      play.args = args
-      play.friends = friends
-      play.friend_plays = friend_plays
-      play.save
-    end        
+    end
+    
+    msg
   end
   
   def has_played?(play,openid)   
