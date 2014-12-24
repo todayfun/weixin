@@ -24,4 +24,30 @@ class Play < ActiveRecord::Base
   def args=(args)
     write_attribute :args,args.to_json
   end
+  
+  def self.launchgame(openid,game)
+    play = Play.where(:game_guid=>game.guid, :owner=>openid).first
+    if play.nil?
+      play = Play.new
+      play.guid = WeixinHelper.guid
+      play.game_guid = game.guid
+      play.owner = openid
+      play.score = 0
+      play.args = game.args
+      play.friends = []
+      play.friend_plays = []
+      play.start_at = Time.now
+      play.end_at = game.end_at
+      play.stamp = game.stamp
+      play.status = game.status
+      
+      if block_given?
+        yield play
+      end
+      
+      play.save
+    end
+    
+    play
+  end
 end
