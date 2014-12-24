@@ -15,6 +15,8 @@ class WeixinHelper
   end
   
   def self.is_valid?(sig,timestamp,nonce)
+    return false if timestamp.nil?
+    
     str = [TOKEN,timestamp,nonce].sort.join()
     sha1 = Digest::SHA1.hexdigest(str)
     

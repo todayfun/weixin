@@ -95,8 +95,8 @@ class KanjiaController < ApplicationController
       elsif "playview"==cmd && openid
         play = Play.find_by_guid params[:play]
         if play
-          msg = flash[:doplay]
-          @title = msg || "当前战绩"
+          @title = flash[:doplay]
+          @title ||= "当前战绩"
           @share_url = url_for(:play=>play.guid,:cmd=>"playview")
 
           owner = play.owner
