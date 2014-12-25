@@ -1,0 +1,40 @@
+<html>
+<head>
+  <title>Kanjia iphone6 title</title>
+  <%= csrf_meta_tags %>  
+  <div>Kanjia Head</div>
+  <script>
+    function isWeiXin(){ 
+     var useragent = navigator.userAgent;
+     if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
+        // 这里警告框会阻塞当前页面继续加载
+        alert('已禁止本次访问：您必须使用微信内置浏览器访问本页面！');
+        // 以下代码是用javascript强行关闭当前页面
+        var opened = window.open('about:blank', '_self');
+        opened.opener = null;
+        opened.close();
+      }
+    }     
+    
+    function onBridgeReady(){
+     isWeiXin();
+    }
+    // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
+    if (typeof WeixinJSBridge == "undefined"){
+        if( document.addEventListener ){
+            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+        }else if (document.attachEvent){
+            document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+        }
+    }else{
+        onBridgeReady();
+    }
+  </script>
+</head>
+<body>
+  请先关注公众号
+  <a href="http://www.weixin//profile/gh_f1bf5b068edd">众奇实业</a>
+  <a href="weixin://profile/gh_04d3139a06d6">宠爱天使</a>
+</body>
+</html>
