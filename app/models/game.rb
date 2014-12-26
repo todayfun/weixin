@@ -8,18 +8,18 @@ class Game < ActiveRecord::Base
     unless game
       game = Game.new
       game.guid = WeixinHelper.guid
-      game.title = "kanjia iphone6"
-      game.banner = "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg"
+      game.title = "一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。"
+      game.banner = "http://42.121.128.45/images/mac.jpg"
       game.wxdata = {
-      "img_url"=> "http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg",
+      "img_url"=> "http://42.121.128.45/images/mac.jpg",
       "link"=> "http://42.121.128.45/kanjia/kanjia",
-      "desc"=> "description kanjia iphone6",
-      "title"=> "kanjia iphone6"
+      "desc"=> "免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？",
+      "title"=> "一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。"
       }
       game.args = {
-        "origin_price"=>6000.0,        
+        "origin_price"=>768700,        
       }
-      game.rule = "共10台，先到先得"
+      game.rule = "本次活动的奖品MacBook Air，为大陆行货，全新未拆封，有发票，全国联保。"
       game.winners = []
       game.start_at = Time.now
       game.end_at = 1.week.from_now

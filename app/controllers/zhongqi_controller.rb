@@ -6,8 +6,7 @@ class ZhongqiController < ApplicationController
     # get current command    
     @label = ""
     @links = []
-    @title = ""
-    @share_url = ""   
+    @title = ""    
     @notice = nil
     @wxdata = {
       :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
@@ -42,7 +41,7 @@ class ZhongqiController < ApplicationController
             @label = input_nickname(game.guid)
           end
           @title = %{开始砍价： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>}          
-          @share_url = url_for(:game=>game.guid,:cmd=>"gameview")
+          @wxdata[:link] = url_for(:game=>game.guid,:cmd=>"gameview")
           @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
         end
       else
@@ -89,7 +88,7 @@ class ZhongqiController < ApplicationController
       play = Play.find_by_guid params[:play]
       if play        
         @title = %{砍价战绩： <del class="kan-old">￥#{play.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{play.args["current_price"]/100.0}</strong>}
-        @share_url = url_for(:play=>play.guid,:cmd=>"playview")
+        @wxdata[:link] = url_for(:play=>play.guid,:cmd=>"playview")
         
         if openid == play.owner
           if has_played?(play,openid)

@@ -22,33 +22,26 @@
       }
     }
     
-    var appid = '';//填入你的appid
-    var shareTitle = 'title:劲爆，0元拿iPhone6';
-    var descContent = "砍价，0元拿iPhone6！";
-    var lineLink = '<%= @share_url.html_safe %>';
-    var imgUrl = 'http://p0.55tuanimg.com/static/goods/mobile/2014/07/03/13/0153b4cdcf4dba2f9d7b94d6681914d9_3.jpg';
-
     function shareFriend() {
-      WeixinJSBridge.invoke('sendAppMessage',{
-      "appid": appid,
-      "img_url": imgUrl,
+      WeixinJSBridge.invoke('sendAppMessage',{      
+      "img_url": <%= @wxdata[:img_url] %>,
       "img_width": "640",
       "img_height": "640",
-      "link": lineLink,
-      "desc": descContent,
-      "title": shareTitle
+      "link": <%= @wxdata[:link] %>,
+      "desc": <%= @wxdata[:desc] %>,
+      "title": <%= @wxdata[:title] %>
       }, function(res) {
       _report('send_msg', res.err_msg);
       });
     }
     function shareTimeline() {
       WeixinJSBridge.invoke('shareTimeline',{
-      "img_url": imgUrl,
+      "img_url": <%= @wxdata[:img_url] %>,
       "img_width": "640",
       "img_height": "640",
-      "link": lineLink,
-      "desc": descContent,
-      "title": shareTitle
+      "link": <%= @wxdata[:link] %>,
+      "desc": <%= @wxdata[:desc] %>,
+      "title": <%= @wxdata[:title] %>
       }, function(res) {
       _report('timeline', res.err_msg);
       });
