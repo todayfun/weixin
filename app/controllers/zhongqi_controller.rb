@@ -8,8 +8,14 @@ class ZhongqiController < ApplicationController
     @links = []
     @title = ""
     @share_url = ""   
-    @input_nickname = false
-    
+    @notice = nil
+    @wxdata = {
+      :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
+      :img_url=>"images/mac.jpg",
+      :link=>"",
+      :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
+    }
+        
     redirect_url = nil
     cmd = params[:cmd]||"gameview"    
 
@@ -20,7 +26,11 @@ class ZhongqiController < ApplicationController
     if "gameview"==cmd
       openid = get_openid()
       game = Game.find_by_guid(params[:game]) || Game.default
-      if game
+      if game                
+        if params[:from_weixin] == "zhongqi"
+          cookies[:from_weixin] = game.guid        
+        end
+        
         play = Play.where(:game_guid=>game.guid,:owner=>openid).first
         if play && openid
           @title = "已经创建了游戏，直接进入"
@@ -31,7 +41,7 @@ class ZhongqiController < ApplicationController
           else
             @label = input_nickname(game.guid)
           end
-          @title = "原始价格"          
+          @title = %{开始砍价： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>}          
           @share_url = url_for(:game=>game.guid,:cmd=>"gameview")
           @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
         end
@@ -78,7 +88,7 @@ class ZhongqiController < ApplicationController
       openid = get_openid()
       play = Play.find_by_guid params[:play]
       if play        
-        @title = "当前战绩:#{play.args.to_json}"
+        @title = %{砍价战绩： <del class="kan-old">￥#{play.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{play.args["current_price"]/100.0}</strong>}
         @share_url = url_for(:play=>play.guid,:cmd=>"playview")
         
         if openid == play.owner
@@ -86,7 +96,7 @@ class ZhongqiController < ApplicationController
             @label = "您已经砍过了!"
             @links = ["找朋友帮我砍",view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]
           else
-            @label = view_context.link_to("自砍一刀",url_for(:play=>play.guid,:cmd=>"doplay"))
+            @label = view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))
             @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
           end            
         else
@@ -145,15 +155,15 @@ class ZhongqiController < ApplicationController
     plays = Play.where(:game_guid=>params[:game])
     
     if !plays.empty?
-      topN = plays.map do |play|
+      @topn = plays.map do |play|
         "#{play.owner},#{play.args["origin_price"]},#{play.args["current_price"]},#{play.args["discount"]}"
       end.join("<br/>")
     else
-      topN = "您是第一个游戏玩家，加油！"
+      @topn = "您是第一个游戏玩家，加油！"
     end
         
     respond_to do |format|
-      format.html {render :text=>topN.html_safe}
+      format.html
     end
   end
   
@@ -167,14 +177,14 @@ class ZhongqiController < ApplicationController
   
   # /play_history?play=guid
   def play_history
-    play = Play.find_by_guid params[:play]
-    if play
-      history = play.friend_plays.map{|r| r.join(',')}.join("<br/>")
+    @play = Play.find_by_guid params[:play]
+    if @play
+      @history = @play.friend_plays.map{|r| r.join(',')}.join("<br/>")
     else
-      history = "还没有砍价记录"
+      @history = "还没有砍价记录"
     end
     respond_to do |format|
-      format.html {render :text=>history.html_safe}
+      format.html
     end
   end
   
@@ -198,7 +208,11 @@ class ZhongqiController < ApplicationController
   end
   
   def has_subscribed?
-    cookies[:subscribed_by] == get_openid
+    if !cookies[:from_weixin].blank?
+      true
+    else
+      cookies[:subscribed_by] == get_openid
+    end    
   end
   
   def dosubscribe!
@@ -207,57 +221,74 @@ class ZhongqiController < ApplicationController
   end
   
 =begin
-首次自己砍价数值随机，范围1000-2000；
-第2次到第6次，别人帮你砍价，数值随机，范围100-200；
-第7次到第16次，别人帮你砍价，数值随机，范围10-100；
-第17次到第66次，别人帮你砍价，数值随机，范围10-20
-第67次到第166次，别人帮你砍价，数值随机，范围5-10
-第167次到第366次，别人帮你砍价，数值随机，范围1-5
-第367次到第966次，别人帮你砍价，数值随机，范围0-1  最小单位分
-第967次到第1766次，别人帮你砍价，数值随机，范围0-0.1  最小单位分
-第1767次到第2500次，别人帮你砍价，数值随机，范围0-0.01元 
-超过2500次，系统提示，对不起，由于您存在作弊行为，取消您此次活动的资格。
+1	1	1000	1600
+2-11	10	110	120
+12-21	10	95	100
+22-31	10	75	80
+32-41	10	55	60
+42-51	10	48	50
+52-66	15	38	40
+67-71	15	28	30
+72-91	20	18	20
+92-121	30	9	10
+122-161	40	1	5
+162-261	100	0	0.2
+262-361	100	0	0.1
+362-1061 700	0	0.01
+价格低于7687时，系统提示，对不起，由于您存在作弊行为，取消您此次活动的资格。
 =end  
   def doplay(play,openid)
     msg = ""
     if has_played?(play,openid)
-      msg = "您已经砍过价了!"      
+      msg = "今天您已经砍过一次啦，明天再来吧！或者邀请其他小伙伴来帮忙砍吧。心动不如行动，你也快来参加MacBook Air 疯狂砍活动，砍到0元，宝贝就是你的啦！"      
     elsif play.status == "CLOSED"
-      msg = "活动已经结束，欢迎再来!"
+      msg = "HI，本次活动已经结束啦，看看其他活动!"
     else
       friends = play.friends
       friend_plays = play.friend_plays
       args = play.args
-      args["current_price"] ||= args["origin_price"]
-      cnt = friends.size
+      args["current_price"] ||= args["origin_price"]      
+      cnt = friends.size+1
 
       if cnt >= 2000
         msg = "砍价超过了2000次，还没有砍到0元，挑战失败"        
       else
         # 以分为单位，变成整数运算
         discount = case cnt
-        when 0
-          100000+rand(100000) # 1000-2000
-        when 2..6
-          10000+rand(10000) # 100-200
-        when 7..16
-          1000+rand(9000) # 10-100
-        when 17..66
-          1000+rand(1000) # 10-20
-        when 67..166
-          500+rand(500) # 5-10
-        when 167..366
-          100+rand(400) # 1-5
-        when 367..966
-          10+rand(90) # 0.1-1
-        when 967..2000
-          1+rand(9) # 0.01-0.1
+        when 1
+          100000+rand(60000) # 1	1	1000	1600
+        when 2..11
+          11000+rand(1000) # 2-11	10	110	120
+        when 12..21
+          9500+rand(500) # 12-21	10	95	100
+        when 22..31
+          7500+rand(500) # 22-31	10	75	80
+        when 32..41
+          5500+rand(500) # 32-41	10	55	60
+        when 42..51
+          4800+rand(200) # 42-51	10	48	50
+        when 52..66
+          3800+rand(200) # 52-66	15	38	40
+        when 67..71
+          2800+rand(200) # 67-71	15	28	30
+        when 72..91
+          1800+rand(200) # 72-91	20	18	20
+        when 92..121
+          900+rand(100) # 92-121	30	9	10
+        when 122..161
+          100+rand(400) # 122-161	40	1	5
+        when 162..261
+          rand(20) # 162-261	100	0	0.2
+        when 262..361
+          rand(10) # 262-361	100	0	0.1
+        when 362..1061
+          rand(1) # 362-1061 700	0	0.01
         else
           0
         end
 
         now = Time.now
-        key = "#{openid}"
+        key = "#{openid},#{now.to_date.to_s}"
         if args["current_price"] > discount
           args["current_price"] -= discount
         else
@@ -270,12 +301,19 @@ class ZhongqiController < ApplicationController
         args["discount"] = args["origin_price"] - args["current_price"]    
         friend_plays << [openid,discount,now]
         friends << key
-        msg = "砍掉了#{discount/100.0}元！"
-
+        
+        play.score = args[:origin_price] - args[:current_price]
         play.args = args
         play.friends = friends
         play.friend_plays = friend_plays
         play.save
+        
+        cnt = Play.where("score>#{play.score} and stamp=#{play.stamp}").count
+        if play.owner==openid
+          msg = %{真厉害！大拿你为自己砍了#{discount/100.0}元！在好友中排名第#{cnt+1}位，快邀请朋友帮你砍价，砍到0元，MacBook Air就是你的啦！}
+        else
+          msg = %{真厉害，帮TA一下子砍了#{discount/100.0}元，大奖越来越近了哦！}
+        end
       end
     end
     
@@ -284,7 +322,7 @@ class ZhongqiController < ApplicationController
   
   def has_played?(play,openid)   
     friends = play.friends    
-    key = "#{openid}"
+    key = "#{openid},#{Date.today.to_s}"
     friends.include?(key)
     false
   end

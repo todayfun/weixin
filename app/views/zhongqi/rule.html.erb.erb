@@ -1,0 +1,51 @@
+<html>
+<head>
+  <title>Kanjia iphone6 title</title>
+  <%= csrf_meta_tags %>  
+  <div>Kanjia Head</div>
+  <script>
+    function isWeiXin(){ 
+     var useragent = navigator.userAgent;
+     if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
+        // 这里警告框会阻塞当前页面继续加载
+        alert('已禁止本次访问：您必须使用微信内置浏览器访问本页面！');
+        // 以下代码是用javascript强行关闭当前页面
+        var opened = window.open('about:blank', '_self');
+        opened.opener = null;
+        opened.close();
+      }
+    }     
+    
+    function onBridgeReady(){
+     isWeiXin();
+    }
+    // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
+    if (typeof WeixinJSBridge == "undefined"){
+        if( document.addEventListener ){
+            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+        }else if (document.attachEvent){
+            document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+        }
+    }else{
+        onBridgeReady();
+    }
+  </script>
+</head>
+<body>
+  <div>
+    活动时间：2015.1.1-2015.1.8
+  </div>
+  <div>
+    活动规则：<br/>
+（1）参加本次活动请使用微信客户端参加，每个用户只能参加一次；<br/>
+（2）参加活动前请先关注公众号<a href="weixin://profile/gh_04d3139a06d6">宠爱天使</a><br/>
+（3）MacBook Air疯狂砍，砍到0元拿回家，每砍一次，价格就会降低很多，自己只能砍一次，邀请朋友来砍可以多次，每天一次，能砍到多少价格就看你能召唤多少小伙伴来帮忙啦！<br/>
+（4）奖品数量有限，首期活动25台，只要砍到0元，无需支付任何费用，顺丰包邮寄到家。活动过程中，只要还能砍价，就说明还有货，可放心参加！<br/>
+（5）本次活动以邀请好友助力的方式进行，作弊软件刷单的行为会被系统识别并禁止，取消活动资格，所以，请不要作弊哦。<br/>
+（6）如果活动结束时，最终没有砍到0元，那么砍下的金额可以在下一期活动中使用，小伙伴们不会白忙活的哦。<br/>
+（7）活动过程中，实时公布获胜者名单，活动结束后5个工作日内，将奖品全部发放完毕。<br/>
+（8）本次活动的奖品MacBook Air，为大陆行货，全新未拆封，有发票，全国联保。<br/>
+  </div>
+</body>
+</html>
