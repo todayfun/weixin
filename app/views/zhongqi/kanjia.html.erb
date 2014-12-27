@@ -47,6 +47,22 @@
       });
     }
 
+    function addContact(wxid)   
+    {   
+        if (typeof WeixinJSBridge == 'undefined') return false;   
+            WeixinJSBridge.invoke('addContact', {   
+                webtype: '1',   
+                username: wxid   
+            }, function(d) {   
+                // 返回d.err_msg取值，d还有一个属性是err_desc   
+                // add_contact:cancel 用户取消   
+                // add_contact:fail　关注失败   
+                // add_contact:ok 关注成功   
+                // add_contact:added 已经关注   
+                WeixinJSBridge.log(d.err_msg);                
+            });   
+    };  
+    
     function WeixinAPIs(){
         var html = [];
         for(var key in window.WeixinJSBridge) {
@@ -98,6 +114,15 @@
       </div>
      <div class="kan-section">          
       <div class="btn btn-danger"><a href='/zhongqi/reset'>重新开始</a></div>       
+      </div>
+      <div class="kan-section">          
+      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="shareFriend();alert('shareFriend');">找朋友帮忙砍</a></div>       
+      </div>    
+      <div class="kan-section">          
+      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="addContact('gh_04d3139a06d6');">加关注</a></div>       
+      </div>
+      <div class="kan-section">          
+      <div class="btn btn-danger"><a href="/zhongqi/subscribe">进关注页</a></div>       
       </div>
 
     <% @links.each do |link| %>
