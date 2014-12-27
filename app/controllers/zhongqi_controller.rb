@@ -219,14 +219,13 @@ class ZhongqiController < ApplicationController
   
   # link: topn?game=guid
   def topn
-    plays = Play.where(:game_guid=>params[:game])
+    plays = Play.where(:game_guid=>params[:game]).order("score desc")
     
     if !plays.empty?
       @topn = plays.map do |play|
-        "#{play.owner},#{play.args["origin_price"]},#{play.args["current_price"]},#{play.args["discount"]}"
-      end.join("<br/>")
-    else
-      @topn = "您是第一个游戏玩家，加油！"
+        [play.start_at.localtime.to_s(:db),play.args["discount"],play.args["current_price"]]
+        #"#{play.owner},#{play.args["origin_price"]},#{play.args["current_price"]},#{play.args["discount"]}"
+      end    
     end
         
     respond_to do |format|

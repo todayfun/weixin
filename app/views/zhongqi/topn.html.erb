@@ -33,11 +33,34 @@
   </script>
 </head>
 <body>
-  <div>
-    砍价排行：
-  </div>
-  <div>
-    <%=@topn%>
-  </div>
+  <div id="content" class="bg-gray">
+    <div class="kan-section">
+      <% if @topn.empty? %>
+        <p>您是第一个，抢先玩！</p>
+      <% else %>
+        <p>已有<%=@topn.size%>位朋友发起了砍价活动!</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>发起时间</th>                    
+                    <th>砍掉金额</th>
+                    <th>砍后价格</th>
+                </tr>
+            </thead>
+            <tbody>
+              <% @topn.each_with_index do |r,idx| %>
+                <tr>
+                  <td>#<%=idx+1%></td>
+                  <td><%= r[0] %></td>                  
+                  <td><del><%=r[1]%></del></td>
+                  <td><%=r[2]%></td>
+                </tr>
+              <%end%>
+            </tbody>
+        </table>
+        <%end%>
+    </div>
 </body>
 </html>
