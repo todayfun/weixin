@@ -1,8 +1,8 @@
 <html>
 <head>
-  <title>Kanjia iphone6 title</title>
-  <%= csrf_meta_tags %>  
-  <div>Kanjia Head</div>
+  <title>一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。</title>
+  <link href="/kan.css" media="all" rel="stylesheet" type="text/css">
+  <%= csrf_meta_tags %>    
   <script>
     function isWeiXin(){ 
      var useragent = navigator.userAgent;
@@ -33,15 +33,92 @@
   </script>
 </head>
 <body>
-  <div>
-    我的活动倒计时
-  </div>
-  <div>
-    <div>我的砍价列表：</div>
-    <div>已经有<%=@play.friends.size%>位朋友帮我砍价了</div>
-    <div>
-      <%=@history.html_safe %>
+  <div id="content" class="bg-gray">
+    <div id="times_container" class="kan-clock list">活动倒计时：<span id="times_day"> </span>天 <span id="times_hour"> </span>小时 <span id="times_minute"> </span>分 <span id="second"> </span>秒</div>
+    <h1 class="center tag">我的砍价列表</h1>
+
+    <div class="kan-section">
+      <% if @play.friend_plays.empty? %>
+        <p>还没有朋友为您砍价，赶快邀请！</p>
+      <% else %>
+        <p>已有<%=@play.friend_plays.size%>位朋友帮你砍价，砍价达人就是TA们啦</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>砍价时间</th>
+                    <th>砍掉金额</th>
+                    <th>砍后价格</th>
+                </tr>
+            </thead>
+            <tbody>
+              <% @play.firend_plays.each do |r| %>
+                <tr>
+                    <td><%= r[3] %></td>
+                    <td><del><%=r[1]%></del></td>
+                    <td><%=r[2]%></td>
+                </tr>
+              <%end%>
+            </tbody>
+        </table>
+        <%end%>
     </div>
-  </div>
+
+    <div class="kan-section">
+        <%= @title.html_safe %>
+    </div>
+    <div class="kan-section">
+        <div class="btn btn-danger">我的活动</div>
+    </div>
+</div>
+<script type="text/javascript"  language="javascript">
+
+setTimeout("count_down()",1000);
+var time_day = document.getElementById("times_day")
+var time_hour = document.getElementById("times_hour")
+var time_minute = document.getElementById("times_minute")
+var time_second = document.getElementById("second")
+var time_end = new Date("<%=@game.end_at.to_s%>")  // 设定活动结束结束时间
+time_end = time_end.getTime()
+
+//定义倒计时函数
+function count_down(){
+    var time_now = new Date()
+    time_now = time_now.getTime()
+    var time_distance = time_end - time_now
+    var int_day, int_hour, int_minute, int_second
+
+    if(time_distance >= 0){
+        int_day = Math.floor(time_distance/86400000)
+        time_distance -= int_day * 86400000
+
+        int_hour = Math.floor(time_distance/3600000)
+        time_distance -= int_hour * 3600000
+
+        int_minute = Math.floor(time_distance/60000)
+        time_distance -= int_minute * 60000
+
+        int_second = Math.floor(time_distance/1000)
+
+        if(int_hour < 10)
+        int_hour = "0" + int_hour
+
+        if(int_minute < 10) 
+        int_minute = "0" + int_minute
+
+        if(int_second < 10)
+        int_second = "0" + int_second
+
+        time_day.innerHTML = int_day
+        time_hour.innerHTML = int_hour
+        time_minute.innerHTML = int_minute
+        time_second.innerHTML = int_second
+        setTimeout("count_down()",1000)
+    }else{
+        times_container.innerHTML='来晚一步，活动已结束'
+    }
+
+}
+</script>
 </body>
 </html>

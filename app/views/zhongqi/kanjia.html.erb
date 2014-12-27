@@ -1,14 +1,14 @@
 <html>
 <head>
-  <title><%=@html_title%></title>
+  <title>一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。</title>
   <%= csrf_meta_tags %>
+  <link href="/kan.css" media="all" rel="stylesheet" type="text/css">
   <meta charset="utf-8" />
   <!--允许全屏-->
   <meta content="yes" name="apple-mobile-web-app-capable" />
   <meta content="yes" name="apple-touch-fullscreen" />    
   <meta content="telephone=no,email=no" name="format-detection" />
-  <meta content="fullscreen=yes,preventMove=no" name="ML-Config" />
-  <link href="kan.css" rel="stylesheet">        
+  <meta content="fullscreen=yes,preventMove=no" name="ML-Config" />  
   <script>
     function isWeiXin(){ 
      var useragent = navigator.userAgent;
@@ -82,19 +82,6 @@
   </script>
 </head>
 <body>    
-  <div>
-    <%= flash[:notice] %>
-  </div>
-  <div>
-    <%= @title.html_safe %>
-  </div>
-  <div>
-    <%= @label.html_safe %>
-  </div>
-  <div>
-    <%= @links.join(" ").html_safe %>
-  </div>
-  
   <div id="content">
       <div class="kan">
           <img src="<%= @wxdata[:img_url].html_safe %>" alt="">
@@ -103,93 +90,79 @@
       <div class="kan-title">
           <%= @wxdata[:desc].html_safe %>
       </div>
-      <div class="kan-section">
-         <div class="btn btn-danger btn-lg active">
-          <%= @title.html_safe %>
-          </div> 
+      <div class="kan-section">         
+          <%= @title.html_safe %>          
       </div>
-      <div class="kan-section">
-          <div class="btn btn-lg btn-danger">
-          <span class="icon icon1">&nbsp;</span>帮TA砍价
-          </div> 
-      </div>
-     <div class="kan-section">
-         <div class="btn btn-lg btn-danger">
-          我也要0元拿iPhone6 Plus
-          </div> 
+      <div class="kan-section">          
+          <%= @label.html_safe %>          
       </div>
 
-     <div class="kan-section">
-          <form name="" action="">
-              <input type="text" name= "userName" placeholder="输入QQ号，一起来砍价"/>
-              <input class="btn btn-lg btn-danger" type="submit" value="参与砍价"/> 
-          </form>
-      </div>
-
-
-       <div class="kan-section">
-          <div class="btn btn-sm btn-danger">
-              <span class="icon icon3">&nbsp;</span>找朋友帮我砍
-          </div> 
-          <div class="btn btn-sm btn-danger">
-              <span class="icon icon2">&nbsp;</span>我的砍价列表
-          </div> 
-      </div>
-
-      <div class="kan-section tight">
-          <a href="">[查看砍价规则]</a>
-      </div>
-      <div class="kan-section tight">
-          <a href="">[查看砍价排行]</a>
-      </div>
+    <% @links.each do |link| %>
+    <div class="kan-section">
+      <%= link.html_safe %>
+    </div>     
+    <%end%>
+         
+    <% if flash[:notice] %>
+      <div class="kan-window-wrap" id="notice-wrap"></div>
+        <div class="kan-info kan-window" id="notice">
+            <p class="center"><span class="icon icon-good">&nbsp;</span></p>
+            <p class="center quote"><%=flash[:notice].html_safe%></p>
+            <div class="center">
+                <div class="btn btn-lg btn-danger" onclick="document.getElementById('notice').style.display = 'none';(elem=document.getElementById('notice-wrap')).parentNode.removeChild(elem);">
+                确定
+                </div> 
+            </div>
+        </div>
+      <%end%>
   </div>
   <script type="text/javascript"  language="javascript">
     setTimeout("count_down()",1000);
-    var time_day = document.getElementById("times_day")
-    var time_hour = document.getElementById("times_hour")
-    var time_minute = document.getElementById("times_minute")
-    var time_second = document.getElementById("second")
-    var time_end = new Date("2014/12/26 21:06:00")  // 设定活动结束结束时间
-    time_end = time_end.getTime()
+        var time_day = document.getElementById("times_day")
+        var time_hour = document.getElementById("times_hour")
+        var time_minute = document.getElementById("times_minute")
+        var time_second = document.getElementById("second")
+        var time_end = new Date("<%=@game.end_at.to_s%>")  // 设定活动结束结束时间
+        time_end = time_end.getTime()
 
-    //定义倒计时函数
-    function count_down(){
-        var time_now = new Date()
-        time_now = time_now.getTime()
-        var time_distance = time_end - time_now
-        var int_day, int_hour, int_minute, int_second
+        //定义倒计时函数
+        function count_down(){
+            var time_now = new Date()
+            time_now = time_now.getTime()
+            var time_distance = time_end - time_now
+            var int_day, int_hour, int_minute, int_second
 
-        if(time_distance >= 0){
-            int_day = Math.floor(time_distance/86400000)
-            time_distance -= int_day * 86400000
+            if(time_distance >= 0){
+                int_day = Math.floor(time_distance/86400000)
+                time_distance -= int_day * 86400000
 
-            int_hour = Math.floor(time_distance/3600000)
-            time_distance -= int_hour * 3600000
+                int_hour = Math.floor(time_distance/3600000)
+                time_distance -= int_hour * 3600000
 
-            int_minute = Math.floor(time_distance/60000)
-            time_distance -= int_minute * 60000
+                int_minute = Math.floor(time_distance/60000)
+                time_distance -= int_minute * 60000
 
-            int_second = Math.floor(time_distance/1000)
+                int_second = Math.floor(time_distance/1000)
 
-            if(int_hour < 10)
-            int_hour = "0" + int_hour
+                if(int_hour < 10)
+                int_hour = "0" + int_hour
 
-            if(int_minute < 10) 
-            int_minute = "0" + int_minute
+                if(int_minute < 10) 
+                int_minute = "0" + int_minute
 
-            if(int_second < 10)
-            int_second = "0" + int_second
+                if(int_second < 10)
+                int_second = "0" + int_second
 
-            time_day.innerHTML = int_day
-            time_hour.innerHTML = int_hour
-            time_minute.innerHTML = int_minute
-            time_second.innerHTML = int_second
-            setTimeout("count_down()",1000)
-        }else{
-            times_container.innerHTML='来晚一步，活动已结束'
+                time_day.innerHTML = int_day
+                time_hour.innerHTML = int_hour
+                time_minute.innerHTML = int_minute
+                time_second.innerHTML = int_second
+                setTimeout("count_down()",1000)
+            }else{
+                times_container.innerHTML='来晚一步，活动已结束'
+            }
+
         }
-
-    }
     </script>
 </body>
 

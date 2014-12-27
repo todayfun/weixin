@@ -10,11 +10,16 @@ class ZhongqiController < ApplicationController
     @notice = nil
     @wxdata = {
       :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
-      :img_url=>"images/mac.jpg",
+      :img_url=>"/mac.jpg",
       :link=>"",
       :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
     }
-        
+
+    @game = nil
+    @play = Play.find_by_guid(params[:play])
+    @game = Game.find_by_guid(@play.game_guid) if @play
+    @game ||= Game.find_by_guid(params[:game]) || Game.default
+    
     redirect_url = nil
     cmd = params[:cmd]||"gameview"    
 
@@ -36,13 +41,32 @@ class ZhongqiController < ApplicationController
           redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
         else
           if openid
-            @label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+            #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+            @label = %{
+            <div class="btn btn-lg btn-danger">
+            <span class="icon icon1">&nbsp;</span>#{view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))}
+            </div> 
+            }
           else
             @label = input_nickname(game.guid)
           end
-          @title = %{开始砍价： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>}          
+          @title = %{
+          <div class="btn btn-danger btn-lg active">
+          快来参与： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>
+          </div>
+          }          
           @wxdata[:link] = url_for(:game=>game.guid,:cmd=>"gameview")
-          @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
+          #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
+          @links << %{
+            <div class="kan-section tight">
+                #{view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid))}
+            </div>
+            }
+            @links << %{
+            <div class="kan-section tight">
+                #{view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))}
+            </div>
+            }
         end
       else
         @label = "#{cmd} fail: cant found game"
@@ -87,25 +111,69 @@ class ZhongqiController < ApplicationController
       openid = get_openid()
       play = Play.find_by_guid params[:play]
       if play        
-        @title = %{砍价战绩： <del class="kan-old">￥#{play.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{play.args["current_price"]/100.0}</strong>}
+        @title = %{
+        <div class="btn btn-danger btn-lg active">
+        砍价战绩： <del class="kan-old">￥#{play.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{play.args["current_price"]/100.0}</strong>
+        </div>
+        }
+        
         @wxdata[:link] = url_for(:play=>play.guid,:cmd=>"playview")
         
         if openid == play.owner
           if has_played?(play,openid)
-            @label = "您已经砍过了!"
-            @links = ["找朋友帮我砍",view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]
+            #@label = "您已经砍过了!"
+            @label = %{<div class="btn btn-lg btn-danger">
+                您已经砍过了!
+                </div>
+            }
+            
+            #@links = ["找朋友帮我砍",view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]
+            @links << %{
+            <div class="btn btn-sm btn-danger">
+              <span class="icon icon3">&nbsp;</span>找朋友帮我砍
+            </div>
+            }
+            @links << %{
+            <div class="btn btn-sm btn-danger">
+              <span class="icon icon2">&nbsp;</span>#{view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))}
+            </div>
+            }
+            
           else
-            @label = view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))
-            @links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
+            #@label = view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))
+            @label = %{
+            <div class="btn btn-lg btn-danger">
+                <span class="icon icon1">&nbsp;</span>#{view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))}
+                </div>
+            }
+            #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
+            @links << %{
+            <div class="kan-section tight">
+                #{view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid))}
+            </div>
+            }
+            @links << %{
+            <div class="kan-section tight">
+                #{view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))}
+            </div>
+            }
           end            
         else
           friend = get_friend()
           if has_played?(play,friend)
             @label = "您已经砍过了"
             @links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
-          else
-            @label = view_context.link_to("帮TA砍价",url_for(:play=>play.guid,:cmd=>"doplay"))
-            @links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
+          else            
+            @label = %{<div class="btn btn-lg btn-danger">
+                <span class="icon icon1">&nbsp;</span>#{view_context.link_to("帮TA砍价",url_for(:play=>play.guid,:cmd=>"doplay"))}
+                </div> }
+            
+            # @links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
+            @links << %{
+          <div class="btn btn-lg btn-danger">
+          #{view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))}
+          </div> 
+            }            
           end
         end        
       else
@@ -145,7 +213,7 @@ class ZhongqiController < ApplicationController
   # link: rule?game=guid
   def rule
     respond_to do |format|
-      format.html {render :text=>"rule page for #{params[:game]}"}
+      format.html
     end
   end
   
@@ -177,11 +245,13 @@ class ZhongqiController < ApplicationController
   # /play_history?play=guid
   def play_history
     @play = Play.find_by_guid params[:play]
-    if @play
-      @history = @play.friend_plays.map{|r| r.join(',')}.join("<br/>")
-    else
-      @history = "还没有砍价记录"
-    end
+    @game = Game.find_by_guid(@play.game_guid) if @play
+    @game ||= Game.find_by_guid(params[:game]) || Game.default
+    @title = %{
+    <div class="btn btn-danger">
+    砍价战绩： <del class="kan-old">￥#{@play.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{@play.args["current_price"]/100.0}</strong>
+    </div>
+    }
     respond_to do |format|
       format.html
     end
@@ -298,16 +368,16 @@ class ZhongqiController < ApplicationController
         end
 
         args["discount"] = args["origin_price"] - args["current_price"]    
-        friend_plays << [openid,discount,now]
+        friend_plays << [openid,discount,args["current_price"],now]
         friends << key
         
-        play.score = args[:origin_price] - args[:current_price]
+        play.score = args["origin_price"] - args["current_price"]
         play.args = args
         play.friends = friends
         play.friend_plays = friend_plays
         play.save
         
-        cnt = Play.where("score>#{play.score} and stamp=#{play.stamp}").count
+        cnt = Play.where("score>#{play.score} and stamp='#{play.stamp}'").count
         if play.owner==openid
           msg = %{真厉害！大拿你为自己砍了#{discount/100.0}元！在好友中排名第#{cnt+1}位，快邀请朋友帮你砍价，砍到0元，MacBook Air就是你的啦！}
         else
@@ -329,13 +399,10 @@ class ZhongqiController < ApplicationController
   def input_nickname(game_guid)
     html = view_context.form_tag "/zhongqi/kanjia?game=#{game_guid}&cmd=gamelaunch" do
       inner = %{
-    <div class="field">
-      <label>请输入微信昵称：</label>
-      <input name="nickname" size="30" type="text">
-    </div>
+      <input type="text" name= "nickname" placeholder="输入微信昵称，一起来砍价"/>
+      <input class="btn btn-lg btn-danger" type="submit" value="参与砍价"/> 
       }
-
-      inner.concat view_context.submit_tag("参与砍价")
+      
       inner.html_safe
     end
     
