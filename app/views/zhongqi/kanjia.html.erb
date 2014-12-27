@@ -110,8 +110,8 @@
       <div class="kan-window-wrap" id="notice-wrap"></div>
         <div class="kan-info kan-modal" id="notice">
           <div class="kan-modal-dialog">
-            <p class="center"><span class="icon icon-good">&nbsp;</span></p>
-            <p class="center quote"><%=flash[:notice].html_safe%></p>
+            <p class="center"><span class="icon icon-<%=flash[:notice][:type]%>">&nbsp;</span></p>
+            <p class="center quote"><%=flash[:notice][:msg].html_safe%></p>
             <div class="center">
                 <div class="btn btn-lg btn-danger" onclick="hideNotice();">
                 确定
