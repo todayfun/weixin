@@ -110,6 +110,7 @@ class ZhongqiController < ApplicationController
       else
         @label = "请输入正确的微信昵称"
         flash[:notice] = "请输入正确的微信昵称"
+        cookies[:notice]=true
         redirect_url = url_for(:game=>params[:game],:cmd=>"gameview")
       end
 
@@ -199,6 +200,7 @@ class ZhongqiController < ApplicationController
         @label = "do play"
         msg = doplay(play,openid)
         flash[:notice] = msg
+        cookies[:notice]=true
         redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
       else
         @label = "#{cmd} fail: cant found play"

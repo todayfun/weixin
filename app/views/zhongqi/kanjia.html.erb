@@ -2,12 +2,11 @@
 <head>
   <title>一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。</title>
   <%= csrf_meta_tags %>
-  <link href="/kan.css" media="all" rel="stylesheet" type="text/css">
+  <link href="/kan.css?<%=Time.now.to_i%>" media="all" rel="stylesheet" type="text/css">
   <meta charset="utf-8" />
   <!--允许全屏-->
-  <%#*<meta content="yes" name="apple-mobile-web-app-capable" />%>
-  <%#*<meta content="yes" name="apple-touch-fullscreen" />%>    
-  <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta content="yes" name="apple-mobile-web-app-capable" />
+  <meta content="yes" name="apple-touch-fullscreen" />  
   <meta content="telephone=no,email=no" name="format-detection" />
   <meta content="fullscreen=yes,preventMove=no" name="ML-Config" />  
   <script>
