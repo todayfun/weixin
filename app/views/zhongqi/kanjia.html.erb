@@ -22,8 +22,7 @@
       }
     }
     
-    function shareFriend() {      
-      alert("shareFriend");
+    function shareFriend() {            
       WeixinJSBridge.invoke('sendAppMessage',{      
       "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width": "640",
@@ -36,8 +35,7 @@
         _report('send_msg', res.err_msg);
       });
     }
-    function shareTimeline() {
-      alert("shareTimeline");
+    function shareTimeline() {      
       WeixinJSBridge.invoke('shareTimeline',{
       "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width": "640",
@@ -50,22 +48,6 @@
         _report('timeline', res.err_msg);
       });
     }
-
-    function addContact(wxid)   
-    {   
-        if (typeof WeixinJSBridge == 'undefined') return false;   
-            WeixinJSBridge.invoke('addContact', {   
-                webtype: '1',   
-                username: wxid   
-            }, function(d) {   
-                // 返回d.err_msg取值，d还有一个属性是err_desc   
-                // add_contact:cancel 用户取消   
-                // add_contact:fail　关注失败   
-                // add_contact:ok 关注成功   
-                // add_contact:added 已经关注   
-                WeixinJSBridge.log(d.err_msg);                
-            });   
-    };  
     
     function WeixinAPIs(){
         var html = [];
@@ -99,6 +81,7 @@
     }else{
         onBridgeReady();
     }
+    isWeiXin();
   </script>
 </head>
 <body>    
@@ -116,31 +99,48 @@
       <div class="kan-section">          
           <%= @label.html_safe %>          
       </div>
+    
      <div class="kan-section">          
       <div class="btn btn-danger"><a href='/zhongqi/reset'>重新开始</a></div>       
       </div>
-      <div class="kan-section">          
-      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="shareFriend();">发给朋友</a></div>       
-      </div>    
-    <div class="kan-section">          
-      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="shareTimeline();">发到朋友圈</a></div>       
-      </div>    
-      <div class="kan-section">          
-      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="addContact('gh_04d3139a06d6');">加关注</a></div>       
-      </div>
-      <div class="kan-section">          
-      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="WeixinJSBridge.call('showOptionMenu');">show关注菜单</a></div>       
-      </div>
+<!--     
       <div class="kan-section">          
       <div class="btn btn-danger"><a href="/zhongqi/subscribe">进关注页</a></div>       
       </div>
-
+-->
     <% @links.each do |link| %>
     <div class="kan-section">
       <%= link.html_safe %>
     </div>     
     <%end%>
          
+    <div class="kan-window-wrap" id="share-wrap"></div>
+      <div class="kan-info kan-modal" id="share">
+        <div class="kan-modal-dialog">          
+          <p class="quote">
+            1、点击右上角分享按钮；<br>
+            2、发送给朋友 或者 <br>
+            3、发送到朋友圈 砍价更快！
+          </p>
+          <div class="center">
+              <div class="btn btn-lg btn-danger" onclick="hideShare();">
+              知道了
+              </div> 
+          </div>
+        </div>
+      </div>
+    <script type="text/javascript"  language="javascript">
+      function showShare() {
+        document.getElementById('share').style.display = 'block';
+        (elem=document.getElementById('share-wrap')).setAttribute("class","kan-window-wrap");
+        eraseCookie('notice');
+      }
+      function hideShare() {
+        document.getElementById('share').style.display = 'none';
+        (elem=document.getElementById('share-wrap')).setAttribute("class","");          
+      }
+      hideShare();
+    </script>
     <% if flash[:notice] %>
       <div class="kan-window-wrap" id="notice-wrap"></div>
         <div class="kan-info kan-modal" id="notice">
@@ -157,7 +157,7 @@
       <script type="text/javascript"  language="javascript">
         function hideNotice() {
           document.getElementById('notice').style.display = 'none';
-          (elem=document.getElementById('notice-wrap')).parentNode.removeChild(elem);
+          (elem=document.getElementById('notice-wrap')).setAttribute("class","");
           eraseCookie('notice');
         }
         

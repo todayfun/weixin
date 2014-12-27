@@ -128,7 +128,7 @@ class ZhongqiController < ApplicationController
             }
             
             #@links = ["找朋友帮我砍",view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]
-            @links << view_context.link_to(%{<div class="btn btn-sm btn-danger"><span class="icon icon3">&nbsp;</span>找朋友帮我砍</div>}.html_safe,"#",:onclick=>"shareTimeline()")
+            @links << view_context.link_to(%{<div class="btn btn-sm btn-danger"><span class="icon icon3">&nbsp;</span>找朋友帮我砍</div>}.html_safe,"#",:onclick=>"showShare();")
             
             @links << view_context.link_to(%{<div class="btn btn-sm btn-danger"><span class="icon icon2">&nbsp;</span>我的砍价列表</div>}.html_safe,
               url_for(:action=>"play_history",:play=>play.guid))            
