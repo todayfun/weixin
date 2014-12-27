@@ -22,7 +22,8 @@
       }
     }
     
-    function shareFriend() {
+    function shareFriend() {      
+      alert("shareFriend");
       WeixinJSBridge.invoke('sendAppMessage',{      
       "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width": "640",
@@ -31,10 +32,12 @@
       "desc": "<%= @wxdata[:desc].html_safe %>",
       "title": "<%= @wxdata[:title].html_safe %>"
       }, function(res) {
-      _report('send_msg', res.err_msg);
+        alert(res.err_msg);
+        _report('send_msg', res.err_msg);
       });
     }
     function shareTimeline() {
+      alert("shareTimeline");
       WeixinJSBridge.invoke('shareTimeline',{
       "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width": "640",
@@ -43,7 +46,8 @@
       "desc": "<%= @wxdata[:desc].html_safe %>",
       "title": "<%= @wxdata[:title].html_safe %>"
       }, function(res) {
-      _report('timeline', res.err_msg);
+        alert(res.err_msg);
+        _report('timeline', res.err_msg);
       });
     }
 
@@ -116,10 +120,16 @@
       <div class="btn btn-danger"><a href='/zhongqi/reset'>重新开始</a></div>       
       </div>
       <div class="kan-section">          
-      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="shareFriend();alert('shareFriend');">找朋友帮忙砍</a></div>       
+      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="shareFriend();">发给朋友</a></div>       
+      </div>    
+    <div class="kan-section">          
+      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="shareTimeline();">发到朋友圈</a></div>       
       </div>    
       <div class="kan-section">          
       <div class="btn btn-danger"><a href="javascript:void(0);" onclick="addContact('gh_04d3139a06d6');">加关注</a></div>       
+      </div>
+      <div class="kan-section">          
+      <div class="btn btn-danger"><a href="javascript:void(0);" onclick="WeixinJSBridge.call('showOptionMenu');">show关注菜单</a></div>       
       </div>
       <div class="kan-section">          
       <div class="btn btn-danger"><a href="/zhongqi/subscribe">进关注页</a></div>       

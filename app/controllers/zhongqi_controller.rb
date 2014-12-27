@@ -78,7 +78,7 @@ class ZhongqiController < ApplicationController
     elsif "gamelaunch"==cmd
       openid = get_openid()
       unless openid
-        openid = set_openid(params[:nickname])
+        openid = set_openid(params[:playowner])
       end
       
       if openid
@@ -382,7 +382,7 @@ class ZhongqiController < ApplicationController
   def input_nickname(game_guid)
     html = view_context.form_tag "/zhongqi/kanjia?game=#{game_guid}&cmd=gamelaunch" do
       inner = %{
-      <input type="text" name= "nickname" placeholder="输入微信昵称，一起来砍价"/>
+      <input type="text" name= "playowner" placeholder="输入微信昵称，一起来砍价"/>
       <input class="btn btn-lg btn-danger" type="submit" value="参与砍价"/> 
       }
       
