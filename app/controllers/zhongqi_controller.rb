@@ -10,7 +10,7 @@ class ZhongqiController < ApplicationController
     @notice = nil
     @wxdata = {
       :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
-      :img_url=>"/mac.jpg",
+      :img_url=>url_for(:controller=>"mac.jpg"),
       :link=>"",
       :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
     }

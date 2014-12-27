@@ -54,11 +54,11 @@ a { text-decoration: none; color: #006699; }
 .kan-section.tight { padding: 20px; }
 .icon { width: 48px; height: 48px; display: inline-block; margin-right: 20px;}
 .btn-sm .icon { margin-right: 0px; }
-.icon1 { background: transparent url(icon1.png) no-repeat 0 0; }
-.icon2 { background: transparent url(icon2.png) no-repeat 0 0; }
-.icon3 { background: transparent url(icon3.png) no-repeat 0 0; }
-.icon4 { background: transparent url(icon4.png) no-repeat 0 0; }
-.icon5 { background: transparent url(icon5.png) no-repeat 0 0; }
+.icon1 { background: transparent url(/icon1.png) no-repeat 0 0; }
+.icon2 { background: transparent url(/icon2.png) no-repeat 0 0; }
+.icon3 { background: transparent url(/icon3.png) no-repeat 0 0; }
+.icon4 { background: transparent url(/icon4.png) no-repeat 0 0; }
+.icon5 { background: transparent url(/icon5.png) no-repeat 0 0; }
 .icon-warning { background: transparent url(/warning.png) no-repeat 0 0; width: 100px; height: 100px; }
 .icon-good { background: transparent url(/good.png) no-repeat 0 0; width: 100px; height: 100px; }
 .center { text-align: center; }
