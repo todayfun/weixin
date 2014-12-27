@@ -61,7 +61,8 @@ h3 { font-size: 1.2em; }
 .btn-danger:active, .btn-danger.active { background-image: none; }
 
 .bg-gray { background: #fafafa; }
-.kan-new { font-size: 1.3em; }
+.kan-new { font-size: 1.3em; }.kan-new { font-size: 1.3em; }
+
 #content { position: relative; width: 16rem; margin: 0 auto; width:100%; font-size: 1.5rem; }
 .kan { width:100%; height:auto; display: block; position: relative; }
 .kan img { width:100%; height:auto; }
