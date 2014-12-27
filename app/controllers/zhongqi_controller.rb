@@ -2,6 +2,16 @@
 class ZhongqiController < ApplicationController
   layout false  
   
+  def reset
+    cookies[:openid] = nil
+    cookies[:subscribed_by] = nil
+    cookies[:from_weixin] = nil
+    
+    respond_to do |format|
+      format.html {redirect_to url_for(:action=>"kanjia")}
+    end
+  end
+  
   def kanjia
     # get current command    
     @label = ""
@@ -130,7 +140,7 @@ class ZhongqiController < ApplicationController
             #@links = ["找朋友帮我砍",view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))]
             @links << %{
             <div class="btn btn-sm btn-danger">
-              <span class="icon icon3">&nbsp;</span>找朋友帮我砍
+              <span class="icon icon3">&nbsp;</span><a href='#' onclick='shareTimeline();'>找朋友帮我砍</a>
             </div>
             }
             @links << %{

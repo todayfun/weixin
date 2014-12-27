@@ -23,6 +23,19 @@
       }
     }     
     
+    function shareFriend() {
+      WeixinJSBridge.invoke('sendAppMessage',{      
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
+      "img_width": "640",
+      "img_height": "640",
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",
+      "title": "<%= @wxdata[:title].html_safe %>"
+      }, function(res) {
+      _report('send_msg', res.err_msg);
+      });
+    }
+    
     function onBridgeReady(){
      isWeiXin();
     }
@@ -43,6 +56,8 @@
   <div id="content">          
       <div class="kan-content">
           <p >请先关注公众号<a href="weixin://profile/gh_04d3139a06d6">宠爱天使</a></p>
+          <p >请先关注公众号<a href="weixin://contacts/profile/gh_04d3139a06d6">宠爱天使</a></p>
+          <p ><a href="#" onclick="shareFriend();">找朋友帮忙砍</a></p>          
           <p class="quote">因宠爱而美丽，因美丽而天使。在这里，您将学会如何从一个平凡的女人变成一个宠爱的天使，分享美容美妆、穿衣搭配、健康养生的经验知识，教您如何鉴别包包、服装、鞋帽等产品的品味质感做工，教您如何淘到超高性价比的原单宝贝。</p>
       </div>
   </div>
