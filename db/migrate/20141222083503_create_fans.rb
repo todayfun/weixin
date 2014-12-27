@@ -5,7 +5,7 @@ class CreateFans < ActiveRecord::Migration
       t.string :nickname
       t.string :sex
       t.string :city
-      t.time :subscribe_time
+      t.datetime :subscribe_time
 
       t.timestamps
     end

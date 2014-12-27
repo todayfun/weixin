@@ -24,24 +24,24 @@
     
     function shareFriend() {
       WeixinJSBridge.invoke('sendAppMessage',{      
-      "img_url": <%= @wxdata[:img_url].html_safe %>,
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width": "640",
       "img_height": "640",
-      "link": <%= @wxdata[:link].html_safe %>,
-      "desc": <%= @wxdata[:desc].html_safe %>,
-      "title": <%= @wxdata[:title].html_safe %>
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",
+      "title": "<%= @wxdata[:title].html_safe %>"
       }, function(res) {
       _report('send_msg', res.err_msg);
       });
     }
     function shareTimeline() {
       WeixinJSBridge.invoke('shareTimeline',{
-      "img_url": <%= @wxdata[:img_url].html_safe %>,
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width": "640",
       "img_height": "640",
-      "link": <%= @wxdata[:link].html_safe %>,
-      "desc": <%= @wxdata[:desc].html_safe %>,
-      "title": <%= @wxdata[:title].html_safe %>
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",
+      "title": "<%= @wxdata[:title].html_safe %>"
       }, function(res) {
       _report('timeline', res.err_msg);
       });

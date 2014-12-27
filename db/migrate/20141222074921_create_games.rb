@@ -8,8 +8,8 @@ class CreateGames < ActiveRecord::Migration
       t.text :args
       t.text :rule
       t.text :winners
-      t.time :start_at
-      t.time :end_at
+      t.datetime :start_at
+      t.datetime :end_at
       t.string :status
       t.string :stamp
 
