@@ -18,7 +18,7 @@ class ZhongqiController < ApplicationController
     @game = nil
     @play = Play.find_by_guid(params[:play])
     @game = Game.find_by_guid(@play.game_guid) if @play
-    @game ||= Game.find_by_guid(params[:game]) || Game.default
+    @game ||= Game.find_by_guid(params[:game]) || Game.default    
     
     redirect_url = nil
     cmd = params[:cmd]||"gameview"    
@@ -141,10 +141,8 @@ class ZhongqiController < ApplicationController
             
           else
             #@label = view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))
-            @label = %{
-            <div class="btn btn-lg btn-danger">
-                <span class="icon icon1">&nbsp;</span>#{view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))}
-                </div>
+            @label = %{            
+                #{view_context.link_to("<div class=\"btn btn-lg btn-danger\"><span class=\"icon icon1\">&nbsp;</span>挥刀自砍</div>".html_safe,url_for(:play=>play.guid,:cmd=>"doplay"))}                
             }
             #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
             @links << %{
