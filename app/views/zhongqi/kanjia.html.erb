@@ -112,7 +112,8 @@
          
     <% if flash[:notice] %>
       <div class="kan-window-wrap" id="notice-wrap"></div>
-        <div class="kan-info kan-window" id="notice">
+        <div class="kan-info kan-modal" id="notice">
+          <div class="kan-modal-dialog">
             <p class="center"><span class="icon icon-good">&nbsp;</span></p>
             <p class="center quote"><%=flash[:notice].html_safe%></p>
             <div class="center">
@@ -120,6 +121,7 @@
                 确定
                 </div> 
             </div>
+          </div>
         </div>
       <%end%>
   </div>
