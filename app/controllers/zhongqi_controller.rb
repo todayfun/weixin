@@ -52,11 +52,8 @@ class ZhongqiController < ApplicationController
         else
           if openid
             #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
-            @label = %{
-            <div class="btn btn-lg btn-danger">
-            <span class="icon icon1">&nbsp;</span>#{view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))}
-            </div> 
-            }
+            @label = view_context.link_to(%{<div class="btn btn-lg btn-danger"><span class="icon icon1">&nbsp;</span>参与砍价</div>}.html_safe,
+              url_for(:game=>game.guid,:cmd=>"gamelaunch"))
           else
             @label = input_nickname(game.guid)
           end
@@ -67,16 +64,8 @@ class ZhongqiController < ApplicationController
           }          
           @wxdata[:link] = url_for(:game=>game.guid,:cmd=>"gameview")
           #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
-          @links << %{
-            <div class="kan-section tight">
-                #{view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid))}
-            </div>
-            }
-            @links << %{
-            <div class="kan-section tight">
-                #{view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))}
-            </div>
-            }
+          @links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>game.guid))            
+          @links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>game.guid))
         end
       else
         @label = "#{cmd} fail: cant found game"
@@ -144,45 +133,29 @@ class ZhongqiController < ApplicationController
               <span class="icon icon3">&nbsp;</span><a href='#' onclick='shareTimeline();'>找朋友帮我砍</a>
             </div>
             }
-            @links << %{
-            <div class="btn btn-sm btn-danger">
-              <span class="icon icon2">&nbsp;</span>#{view_context.link_to("我的砍价列表",url_for(:action=>"play_history",:play=>play.guid))}
-            </div>
-            }
+            @links << view_context.link_to(%{<div class="btn btn-sm btn-danger"><span class="icon icon2">&nbsp;</span>我的砍价列表</div>}.html_safe,
+              url_for(:action=>"play_history",:play=>play.guid))
             
           else
             #@label = view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))
-            @label = %{            
-                #{view_context.link_to("<div class=\"btn btn-lg btn-danger\"><span class=\"icon icon1\">&nbsp;</span>挥刀自砍</div>".html_safe,url_for(:play=>play.guid,:cmd=>"doplay"))}                
-            }
+            @label = view_context.link_to(%{<div class="btn btn-lg btn-danger"><span class="icon icon1">&nbsp;</span>挥刀自砍</div>}.html_safe,
+              url_for(:play=>play.guid,:cmd=>"doplay"))
+            
             #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
-            @links << %{
-            <div class="kan-section tight">
-                #{view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid))}
-            </div>
-            }
-            @links << %{
-            <div class="kan-section tight">
-                #{view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))}
-            </div>
-            }
+            @links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>play.game_guid))
+            @links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>play.game_guid))
           end            
         else
           friend = get_friend()
           if has_played?(play,friend)
             @label = "您已经砍过了"
             @links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
-          else            
-            @label = %{<div class="btn btn-lg btn-danger">
-                <span class="icon icon1">&nbsp;</span>#{view_context.link_to("帮TA砍价",url_for(:play=>play.guid,:cmd=>"doplay"))}
-                </div> }
+          else
+            @label = view_context.link_to(%{<div class="btn btn-lg btn-danger"><span class="icon icon1">&nbsp;</span>帮TA砍价</div>}.html_safe,
+              url_for(:play=>play.guid,:cmd=>"doplay"))   
             
             # @links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
-            @links << %{
-          <div class="btn btn-lg btn-danger">
-          #{view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))}
-          </div> 
-            }            
+            @links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:cmd=>"gameview"))                     
           end
         end        
       else
