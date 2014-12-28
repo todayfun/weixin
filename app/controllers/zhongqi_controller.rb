@@ -7,9 +7,10 @@ class ZhongqiController < ApplicationController
     cookies[:subscribed_by] = nil
     cookies[:from_weixin] = nil
     cookies[:friend] = nil
+    subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
     
     respond_to do |format|
-      format.html {redirect_to url_for(:action=>"kanjia",:cmd=>"gameview")}
+      format.html {redirect_to subscribe_url}
     end
   end
   
