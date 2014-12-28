@@ -146,11 +146,12 @@
       <div class="btn btn-danger"><a href="/zhongqi/subscribe">进关注页</a></div>       
       </div>
 -->
-    <% @links.each do |link| %>
+    <% @btn_links.each do |link| %>
     <div class="kan-section">
       <%= link.html_safe %>
     </div>     
     <%end%>
+    <%= @tair_links.join("\n").html_safe %>
          
     <div class="kan-window-wrap" id="share-wrap"></div>
       <div class="kan-info kan-modal" id="share">
