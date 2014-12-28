@@ -147,7 +147,7 @@ class ZhongqiController < ApplicationController
           friend = get_friend()
           if has_played?(play,friend)
             @label = %{<div class="btn btn-lg btn-danger">您已经帮TA砍过价了!</div>}
-            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>},url_for(:game=>play.game_guid,:cmd=>"gameview"))
+            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:cmd=>"gameview"))
             @btn_links << view_context.link_to(%{<div class="btn btn-sm btn-danger"><span class="icon icon3">&nbsp;</span>找朋友帮TA砍</div>}.html_safe,"#",:onclick=>"showShare();")
           else
             @label = view_context.link_to(%{<div class="btn btn-lg btn-danger"><span class="icon icon1">&nbsp;</span>帮TA砍价</div>}.html_safe,
