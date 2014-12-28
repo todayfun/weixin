@@ -6,6 +6,7 @@ class ZhongqiController < ApplicationController
     cookies[:openid] = nil
     cookies[:subscribed_by] = nil
     cookies[:from_weixin] = nil
+    cookies[:friend] = nil
     
     respond_to do |format|
       format.html {redirect_to url_for(:action=>"kanjia",:cmd=>"gameview")}
@@ -204,7 +205,7 @@ class ZhongqiController < ApplicationController
     
     if !plays.empty?
       @topn = plays.map do |play|
-        [play.start_at.localtime.to_s(:db),play.args["discount"],play.args["current_price"]]
+        [play.start_at.localtime.to_s(:db),play.args["discount"]/100.0,play.args["current_price"]/100.0]
         #"#{play.owner},#{play.args["origin_price"]},#{play.args["current_price"]},#{play.args["discount"]}"
       end    
     end
@@ -265,7 +266,7 @@ class ZhongqiController < ApplicationController
     if !cookies[:from_weixin].blank?
       true
     else
-      cookies[:subscribed_by] == get_openid
+      cookies[:subscribed_by] && (cookies[:subscribed_by] == get_openid)
     end    
   end
   
