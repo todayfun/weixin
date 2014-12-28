@@ -31,7 +31,7 @@
       "desc": "<%= @wxdata[:desc].html_safe %>",
       "title": "<%= @wxdata[:title].html_safe %>"
       }, function(res) {
-        alert(res.err_msg);
+        //alert(res.err_msg);
         _report('send_msg', res.err_msg);
       });
     }
@@ -44,7 +44,7 @@
       "desc": "<%= @wxdata[:desc].html_safe %>",
       "title": "<%= @wxdata[:title].html_safe %>"
       }, function(res) {
-        alert(res.err_msg);
+        //alert(res.err_msg);
         _report('timeline', res.err_msg);
       });
     }
