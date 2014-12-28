@@ -45,27 +45,32 @@ class ZhongqiController < ApplicationController
           cookies[:from_weixin] = game.guid        
         end
         
-        play = Play.where(:game_guid=>game.guid,:owner=>openid).first
-        if play && openid
-          @title = "已经创建了游戏，直接进入"
-          redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
-        else
-          if openid
-            #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
-            @label = view_context.link_to(%{<div class="btn btn-lg btn-danger"><span class="icon icon1">&nbsp;</span>参与砍价</div>}.html_safe,
-              url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+        unless has_subscribed?
+          @label = "#{cmd} fail: 还没订阅公众号"
+          redirect_url = url_for(:action=>"subscribe")
+        else          
+          play = Play.where(:game_guid=>game.guid,:owner=>openid).first
+          if play && openid
+            @title = "已经创建了游戏，直接进入"
+            redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
           else
-            @label = input_nickname(game.guid)
+            if openid
+              #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+              @label = view_context.link_to(%{<div class="btn btn-lg btn-danger"><span class="icon icon1">&nbsp;</span>参与砍价</div>}.html_safe,
+                url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+            else
+              @label = input_nickname(game.guid)
+            end
+            @title = %{
+            <div class="btn btn-danger btn-lg active">
+            快来参与： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>
+            </div>
+            }          
+            @wxdata[:link] = url_for(:game=>game.guid,:cmd=>"gameview")
+            #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
+            @links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>game.guid))            
+            @links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>game.guid))
           end
-          @title = %{
-          <div class="btn btn-danger btn-lg active">
-          快来参与： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>
-          </div>
-          }          
-          @wxdata[:link] = url_for(:game=>game.guid,:cmd=>"gameview")
-          #@links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
-          @links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>game.guid))            
-          @links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>game.guid))
         end
       else
         @label = "#{cmd} fail: cant found game"
@@ -82,7 +87,7 @@ class ZhongqiController < ApplicationController
       end
       
       if openid
-        if has_subscribed?
+        #if has_subscribed?
           game = Game.find_by_guid(params[:game])
           if game
             play = Play.launchgame(openid,game)
@@ -92,10 +97,8 @@ class ZhongqiController < ApplicationController
           else
             @label = "#{cmd} fail: cant found game"
           end
-        else
-          @label = "#{cmd} fail: 还没订阅公众号"
-          redirect_url = url_for(:action=>"subscribe")          
-        end
+        #else                 
+        #end
       else
         @label = "请输入正确的微信昵称"
         flash[:notice] = {:msg=>"请输入正确的微信昵称",:type=>"warning"}
