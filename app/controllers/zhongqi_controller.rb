@@ -8,12 +8,13 @@ class ZhongqiController < ApplicationController
     cookies[:from_weixin] = nil
     
     respond_to do |format|
-      format.html {redirect_to url_for(:action=>"kanjia")}
+      format.html {redirect_to url_for(:action=>"kanjia",:cmd=>"gameview")}
     end
   end
   
   def kanjia
-    # get current command    
+    # get current command
+    subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
     @label = ""
     @links = []
     @title = ""    
@@ -47,7 +48,7 @@ class ZhongqiController < ApplicationController
         
         unless has_subscribed?
           @label = "#{cmd} fail: 还没订阅公众号"
-          redirect_url = url_for(:action=>"subscribe")
+          redirect_url = subscribe_url
         else          
           play = Play.where(:game_guid=>game.guid,:owner=>openid).first
           if play && openid
