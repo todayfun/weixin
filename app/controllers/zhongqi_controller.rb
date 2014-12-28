@@ -255,7 +255,7 @@ class ZhongqiController < ApplicationController
     
   def get_friend
     friend = cookies[:friend]
-    unless friend.blank?
+    if friend.blank?
       friend = WeixinHelper.guid
       cookies[:friend] = friend
     end
