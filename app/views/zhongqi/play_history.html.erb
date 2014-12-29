@@ -2,22 +2,47 @@
 <head>
   <title>一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。</title>
   <link href="/kan.css?<%=Time.now.to_i%>" media="all" rel="stylesheet" type="text/css">
+  <!--允许全屏-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <%= csrf_meta_tags %>    
   <script>
-    function isWeiXin(){ 
-     var useragent = navigator.userAgent;
-     if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
-        // 这里警告框会阻塞当前页面继续加载
-        alert('已禁止本次访问：您必须使用微信内置浏览器访问本页面！');
-        // 以下代码是用javascript强行关闭当前页面
-        var opened = window.open('about:blank', '_self');
-        opened.opener = null;
-        opened.close();
-      }
-    }     
+    function shareFriend() {            
+      WeixinJSBridge.invoke('sendAppMessage',{      
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
+      "img_width": "640",
+      "img_height": "640",
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",
+      "title": "<%= @wxdata[:title].html_safe %>"
+      }, function(res) {
+        //alert(res.err_msg);
+        _report('send_msg', res.err_msg);
+      });
+    }
+    function shareTimeline() {      
+      WeixinJSBridge.invoke('shareTimeline',{
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
+      "img_width": "640",
+      "img_height": "640",
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",
+      "title": "<%= @wxdata[:title].html_safe %>"
+      }, function(res) {
+        //alert(res.err_msg);
+        _report('timeline', res.err_msg);
+      });
+    }
     
     function onBridgeReady(){
-     isWeiXin();
+     // 发送给好友
+     WeixinJSBridge.on('menu:share:appmessage', function(argv){
+     shareFriend();
+     });
+
+     // 分享到朋友圈
+     WeixinJSBridge.on('menu:share:timeline', function(argv){
+     shareTimeline();
+     });     
     }
     // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
     if (typeof WeixinJSBridge == "undefined"){

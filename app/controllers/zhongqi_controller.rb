@@ -1,7 +1,17 @@
 # encoding:utf-8
 class ZhongqiController < ApplicationController
   layout false  
-  
+
+  def wxdata
+    wxdata = {
+    :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
+    :img_url=>url_for(:controller=>"mac.jpg"),
+    :link=>url_for(:action=>"kanjia",:game=>Game.kanjia.guid,:cmd=>"gameview"),
+    :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
+    }
+    
+    wxdata
+  end  
   def reset
     cookies[:openid] = nil
     cookies[:subscribed_by] = nil
@@ -22,12 +32,7 @@ class ZhongqiController < ApplicationController
     @tair_links = []
     @title = ""    
     @notice = nil
-    @wxdata = {
-      :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
-      :img_url=>url_for(:controller=>"mac.jpg"),
-      :link=>"",
-      :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
-    }
+    @wxdata = wxdata()
        
     @game = nil
     @play = Play.find_by_guid(params[:play])
@@ -194,7 +199,9 @@ class ZhongqiController < ApplicationController
   
   # link: rule?game=guid
   def rule
+    @game = Game.find_by_guid params[:game] || Game.kanjia
     @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
+    @wxdata = @wxdata = wxdata()
     respond_to do |format|
       format.html
     end
@@ -203,7 +210,9 @@ class ZhongqiController < ApplicationController
   # link: topn?game=guid
   def topn
     plays = Play.where(:game_guid=>params[:game]).order("score desc")
-    
+    @game = Game.find_by_guid params[:game] || Game.kanjia
+    @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
+    @wxdata = @wxdata = wxdata()
     if !plays.empty?
       @topn = plays.map do |play|        
         name = play.owner.strip
@@ -222,12 +231,7 @@ class ZhongqiController < ApplicationController
   
   def subscribe
     dosubscribe!
-    @wxdata = {
-      :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
-      :img_url=>url_for(:controller=>"mac.jpg"),
-      :link=>url_for(:action=>'kanjia'),
-      :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
-    }
+    @wxdata = @wxdata = wxdata()
     respond_to do |format|
       format.html
     end
@@ -237,6 +241,7 @@ class ZhongqiController < ApplicationController
   def play_history
     @play = Play.find_by_guid params[:play]
     @game = Game.find_by_guid(@play.game_guid) if @play
+    @wxdata = @wxdata = wxdata()
     
     @title = %{
     <div class="btn btn-danger">
