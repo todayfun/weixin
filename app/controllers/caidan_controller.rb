@@ -1,22 +1,19 @@
-# encoding:utf-8
-class ZhongqiController < ApplicationController
+class CaidanController < ApplicationController
   layout false  
+  @@subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
   
   def reset
     cookies[:openid] = nil
     cookies[:subscribed_by] = nil
     cookies[:from_weixin] = nil
     cookies[:friend] = nil
-    subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
-    
+        
     respond_to do |format|
-      format.html {redirect_to subscribe_url}
+      format.html {redirect_to @@subscribe_url}
     end
   end
   
-  def kanjia
-    # get current command
-    subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
+  def kanjia        
     @label = ""
     @btn_links = []
     @tair_links = []
@@ -28,11 +25,11 @@ class ZhongqiController < ApplicationController
       :link=>"",
       :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
     }
-       
+
     @game = nil
     @play = Play.find_by_guid(params[:play])
     @game = Game.find_by_guid(@play.game_guid) if @play
-    @game ||= Game.find_by_guid(params[:game]) || Game.kanjia    
+    @game ||= Game.find_by_guid(params[:game]) || Game.default    
     
     redirect_url = nil
     cmd = params[:cmd]||"gameview"    
@@ -43,7 +40,7 @@ class ZhongqiController < ApplicationController
     # share: kanjia?game=guid&cmd=gameview
     if "gameview"==cmd
       openid = get_openid()
-      game = Game.find_by_guid(params[:game]) || Game.kanjia
+      game = Game.find_by_guid(params[:game]) || Game.default
       if game                
         if params[:from_weixin] == "zhongqi"
           cookies[:from_weixin] = game.guid        
@@ -51,7 +48,7 @@ class ZhongqiController < ApplicationController
         
         unless has_subscribed?
           @label = "#{cmd} fail: 还没订阅公众号"
-          redirect_url = subscribe_url
+          redirect_url = @@subscribe_url
         else          
           play = Play.where(:game_guid=>game.guid,:owner=>openid).first
           if play && openid
@@ -233,7 +230,7 @@ class ZhongqiController < ApplicationController
   def play_history
     @play = Play.find_by_guid params[:play]
     @game = Game.find_by_guid(@play.game_guid) if @play
-    
+    @game ||= Game.find_by_guid(params[:game]) || Game.default
     @title = %{
     <div class="btn btn-danger">
     砍价战绩： <del class="kan-old">￥#{@play.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{@play.args["current_price"]/100.0}</strong>
@@ -382,18 +379,5 @@ class ZhongqiController < ApplicationController
     key = "#{openid},#{Date.today.to_s}"
     friends.include?(key)
     #false
-  end
-  
-  def input_nickname(game_guid)
-    html = view_context.form_tag "/zhongqi/kanjia?game=#{game_guid}&cmd=gamelaunch" do
-      inner = %{
-      <input type="text" name= "playowner" placeholder="输入微信昵称，一起来砍价"/>
-      <input class="btn btn-lg btn-danger" type="submit" value="参与砍价"/> 
-      }
-      
-      inner.html_safe
-    end
-    
-    html
   end
 end

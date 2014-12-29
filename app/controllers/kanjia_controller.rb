@@ -24,7 +24,7 @@ class KanjiaController < ApplicationController
       to = params[:xml][:ToUserName]            
       Fans.subscribe_by(from) if "subscribe"==params[:xml][:Event]
       
-      msg = WeixinHelper.echo_game(from,to,url_for(:action=>:kanjia,:game=>Game.default.guid,:cmd=>"gameview"))
+      msg = WeixinHelper.echo_game(from,to,url_for(:action=>:kanjia,:game=>Game.kanjia.guid,:cmd=>"gameview"))
       
       respond_to do |format|
         format.html {render :text=>msg}
