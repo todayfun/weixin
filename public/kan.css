@@ -19,8 +19,8 @@ blockquote:before, blockquote:after,
 q:before, q:after {	content: '';content: none;}
 table {	border-collapse: collapse; border-spacing: 0; }
 a { text-decoration: none; color: #006699; }
-.kan-section a { color: #333; text-decoration: none; font-size: 1em; }
-.quote { background-color: #eee; padding: 20px; font-size: 1em; line-height: 1.3em; }
+.kan-section a { color: #333; text-decoration: none; font-size: 15px; }
+.quote { background-color: #eee; padding: 20px; font-size: 15px; line-height: 20px; }
 
 /* Document level adjustments 
 html { font-size: 17px; }
@@ -39,11 +39,11 @@ h3 { font-size: 1.2em; }
 .alert-danger { color: #a94442; font-size: 15px;; background-color: #f2dede; border-color: #ebccd1; }
 .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
 
-.btn { display: inline-block; padding: 12px 40px; margin-bottom: 0; font-size: 15px;; line-height: 1.1em; text-align: center;
+.btn { display: inline-block; padding: 12px 40px; margin-bottom: 0; font-size: 15px;; line-height: 15px; text-align: center;
   vertical-align: middle; white-space: nowrap; cursor: pointer; background-image: none; border: 1px solid transparent; width: 90%;
   border-radius: 4px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -o-user-select: none; user-select: none; }
 .btn-lg { width: 90%; }
-.btn-sm { padding:12px 10px; width: 40%; margin: 0 10px; font-size: 0.9em; }
+.btn-sm { padding:12px 10px; width: 40%; margin: 0 10px; font-size: 13px; }
 .btn:focus { outline: thin dotted; outline: 5px auto -webkit-focus-ring-color; outline-offset: -2px; }
 .btn:hover, .btn:focus { color: #333333; text-decoration: none;}
 .btn:active, .btn.active { background-image: none; outline: 0;
@@ -61,7 +61,7 @@ h3 { font-size: 1.2em; }
 .btn-danger:active, .btn-danger.active { background-image: none; }
 
 .bg-gray { background: #fafafa; }
-.kan-new { font-size: 1.2em; font-weight:bold; }
+.kan-new { font-size: 18px; font-weight:bold; }
 
 #content { position: relative; margin: 0 auto; width:100%; }
 .kan { width:100%; height:auto; display: block; position: relative; }
@@ -69,7 +69,7 @@ h3 { font-size: 1.2em; }
 .kan-clock { bottom:0; width:100%;  position: absolute; 
 	background: rgba(0,0,0,0.5); color: white; font-size: 15px;; padding: 10px; }
 .kan-clock.list { position: relative; }
-.kan-title { display: block; position: relative; padding: 10px;  font-size: 15px;; line-height: 1.4em; padding-left: 30px; }
+.kan-title { display: block; position: relative; padding: 10px;  font-size: 15px;; line-height: 20px; padding-left: 30px; }
 .kan-section { padding: 10px 0; display: block; position: relative; text-align: center; }
 .kan-section.tight { padding: 20px; }
 .icon { width: 48px; height: 48px; display: inline-block; margin-right: 20px;}
@@ -83,9 +83,9 @@ h3 { font-size: 1.2em; }
 .icon-good { background: transparent url(good.png) no-repeat 0 0; width: 100px; height: 100px; }
 .center { text-align: center; }
 .center.quote { background: transparent; }
-.kan-content { font-size: 15px;; line-height: 1.4em; padding: 40px;}
+.kan-content { font-size: 15px;; line-height: 20px; padding: 40px;}
 .red { color: red; }
-input[type="text"] { font-size: 1.3em; padding: 15px 30px; margin-bottom: 30px; height:2em; width:90%; }
+input[type="text"] { font-size: 15px; padding: 15px 30px; margin-bottom: 30px;  width:90%; }
 table { font-size: 15px;; text-align: center; margin: 0 auto; width: 90%; }
 th { background: #eee; color: #4d90fe; border: 1px solid #ddd !important; padding: 10px; }
 td { border: 1px solid #ddd !important; padding: 20px 30px; }
@@ -95,9 +95,9 @@ overflow: hidden; -webkit-overflow-scrolling: touch; outline: 0; }
   border-radius: 4px; -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); 
   left: auto; margin-right: auto; margin-left: auto; width: 90%; padding: 30px 30px 70px; }
 .kan-window .btn-danger { width: auto; padding-right: 150px; padding-left: 150px; }
-.kan-window-wrap { top:0; right:0; left: 0; bottom: 0; position:fixed; background: rgba(0,0,0,0.4)}
+.kan-window-wrap { top:0; right:0; left: 0; bottom: 0; position:fixed; background: rgba(0,0,0,0.8)}
 .white { color: #fff; }
-.lh13 { line-height: 2em; }
+.lh13 { line-height: 30px; }
 .white.lh13 { width: 80%; margin:30px auto; }
 .white.lh13 .kan-modal-dialog { background: transparent; border: none; box-shadow: none; }
 .white.lh13 .icon { margin-right: 0; }
