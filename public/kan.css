@@ -72,7 +72,7 @@ h3 { font-size: 1.2em; }
 .kan-title { display: block; position: relative; padding: 10px;  font-size: 16px;; line-height: 20px; padding-left: 30px; }
 .kan-section { padding: 10px 0; display: block; position: relative; text-align: center; }
 .kan-section.tight { padding: 20px; }
-.icon { width: 24px; height:24px; display: inline-block; margin-right: 5px;}
+.icon { display: inline-block; margin-right: 5px;  height:16px; width: 16px;}
 .btn-sm .icon { margin-right: 0px; }
 .icon1 { background: transparent url(icon1.png) no-repeat 0 0; }
 .icon2 { background: transparent url(icon2.png) no-repeat 0 0; }
