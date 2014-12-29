@@ -39,7 +39,7 @@ h3 { font-size: 1.2em; }
 .alert-danger { color: #a94442; font-size: 15px;; background-color: #f2dede; border-color: #ebccd1; }
 .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
 
-.btn { display: inline-block; padding: 12px 40px; margin-bottom: 0; font-size: 15px;; line-height: 15px; text-align: center;
+.btn { display: inline-block; padding: 12px 40px; margin-bottom: 0; font-size: 15px;; line-height: 20px; text-align: center;
   vertical-align: middle; white-space: nowrap; cursor: pointer; background-image: none; border: 1px solid transparent; width: 90%;
   border-radius: 4px; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -o-user-select: none; user-select: none; }
 .btn-lg { width: 90%; }
@@ -72,7 +72,7 @@ h3 { font-size: 1.2em; }
 .kan-title { display: block; position: relative; padding: 10px;  font-size: 15px;; line-height: 20px; padding-left: 30px; }
 .kan-section { padding: 10px 0; display: block; position: relative; text-align: center; }
 .kan-section.tight { padding: 20px; }
-.icon { width: 48px; height: 48px; display: inline-block; margin-right: 20px;}
+.icon { width: 24px; height:24px; display: inline-block; margin-right: 5px;}
 .btn-sm .icon { margin-right: 0px; }
 .icon1 { background: transparent url(icon1.png) no-repeat 0 0; }
 .icon2 { background: transparent url(icon2.png) no-repeat 0 0; }
