@@ -35,7 +35,7 @@
 <body>  
   <div id="content">          
       <div class="kan-content">
-          <h3 class="red">活动时间：2015.1.1-2015.1.8</h3>
+          <h3 class="red">活动时间：2014.12.28-2015.1.8</h3>
           <p class="red">活动规则：</p>
           <ol>
 （1）参加本次活动请使用微信客户端参加，每个用户只能参加一次；<br/>
@@ -51,14 +51,42 @@
 
       <div class="kan-section">
           <div class="btn btn-lg btn-danger">
-          <span class="icon icon4">&nbsp;</span>分享到朋友圈
+            <a href="javascript:void(0)" onclick="showShare();"><span class="icon icon4">&nbsp;</span>分享到朋友圈</a>
           </div> 
       </div>
      <div class="kan-section">
          <div class="btn btn-lg btn-default">
-          <span class="icon icon5">&nbsp;</span>返回我的活动
+           <a href="<%=@game_url.html_safe%>"><span class="icon icon5">&nbsp;</span>返回我的活动</a>
           </div> 
       </div>
+    
+    <div class="kan-window-wrap" id="share-wrap"></div>
+      <div class="kan-info kan-modal" id="share">
+        <div class="kan-modal-dialog">          
+          <p class="quote">
+            1、点击右上角分享按钮；<br>
+            2、发送给朋友 或者 <br>
+            3、发送到朋友圈 砍价更快！
+          </p>
+          <div class="center">
+              <div class="btn btn-lg btn-danger" onclick="hideShare();">
+              知道了
+              </div> 
+          </div>
+        </div>
+      </div>
+    <script type="text/javascript"  language="javascript">
+      function showShare() {
+        document.getElementById('share').style.display = 'block';
+        (elem=document.getElementById('share-wrap')).setAttribute("class","kan-window-wrap");
+        eraseCookie('notice');
+      }
+      function hideShare() {
+        document.getElementById('share').style.display = 'none';
+        (elem=document.getElementById('share-wrap')).setAttribute("class","");          
+      }
+      hideShare();
+    </script>
   </div>
 </body>
 </html>

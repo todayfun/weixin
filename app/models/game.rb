@@ -18,8 +18,8 @@ class Game < ActiveRecord::Base
       }
       game.rule = "本次活动的奖品MacBook Air，为大陆行货，全新未拆封，有发票，全国联保。"
       game.winners = []
-      game.start_at = Time.now
-      game.end_at = 1.week.from_now
+      game.start_at = Time.parse("2014-12-28 00:00:00 +0800")
+      game.end_at = Time.parse("2015-01-08 23:59:59 +0800")
       game.status = "OPEN"
       game.stamp  = "KANJIA"          
       game.save!
