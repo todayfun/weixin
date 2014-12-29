@@ -194,7 +194,7 @@ class ZhongqiController < ApplicationController
   
   # link: rule?game=guid
   def rule
-    @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid)
+    @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
     respond_to do |format|
       format.html
     end
