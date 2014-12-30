@@ -148,7 +148,7 @@ class Play < ActiveRecord::Base
         
         t_delta = (t.to_i-play.start_at.to_i)*100/one_day
         p_delta = args["discount"]*100/args["origin_price"]
-        delta = t_delta + p_delta
+        delta = t_delta + p_delta*4
         hashed[delta] = play
       end            
     end
