@@ -56,6 +56,8 @@ class Play < ActiveRecord::Base
     stamp = "SEED_KANJIA"
     game = Game.kanjia
     
+    Play.where(:game=>game.guid,:stamp=>stamp).delete_all
+    
     # 日期从2014-12-28-2015-01-07共11天
     day = 11
     t1 = Time.parse("2014-12-28")   
