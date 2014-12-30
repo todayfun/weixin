@@ -76,7 +76,7 @@ class Play < ActiveRecord::Base
         play.owner = WeixinHelper.guid
              
         args = game.args
-        discount = args["origin_price"]*0.1 + rand(args["origin_price"]*0.2)
+        discount = (args["origin_price"]*0.1).to_i + rand(args["origin_price"]*0.2)
         args["current_price"] = args["origin_price"] - discount
         args["discount"] = args["origin_price"] - args["current_price"]
         play.args = args
@@ -154,8 +154,11 @@ class Play < ActiveRecord::Base
     end
     
     d = (t.to_i - t0)/one_day
+    return if d < 0
+    
     need_cnt = (winner_cnt[d]||0)
     cnt = (need_cnt - closed) * (t.to_i - t0) / ((d+1)*one_day)
+    Rails.logger.info("day:#{d},need:#{need_cnt},current:#{closed},add:#{cnt}")
     if cnt > 0
       keys = hashed.keys.sort{|a,b| b<=>a}[0,cnt]
       keys.each do |key|
