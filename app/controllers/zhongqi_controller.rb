@@ -218,7 +218,7 @@ class ZhongqiController < ApplicationController
         name = play.owner.strip
         next if name.blank?
         
-        name = name[0] + name[1] + "..." + name[-1]
+        name = name[0] + name[1].to_s + "..." + name[-1]
         [name, play.start_at.localtime.to_s(:db),play.args["discount"]/100.0,play.args["current_price"]/100.0]
         #"#{play.owner},#{play.args["origin_price"]},#{play.args["current_price"]},#{play.args["discount"]}"
       end    
