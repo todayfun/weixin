@@ -50,4 +50,128 @@ class Play < ActiveRecord::Base
     
     play
   end
+      
+  # [2,2,3,4,4,3,2,2]
+  def self.seed_kanjia_players()
+    stamp = "SEED_KANJIA"
+    game = Game.kanjia
+    
+    # 日期从2014-12-28-2015-01-07共11天
+    day = 11
+    t1 = Time.parse("2014-12-28")   
+    one_day = 1.day.to_i
+    
+    d = 1
+    sum = 0
+    while(d <= day) do
+      # 每天生产50-100个
+      cnt = 50 + rand(50)      
+      i = 1
+      t_delta = one_day*d
+      
+      while(i<=cnt) do
+        play = Play.new
+        play.guid = WeixinHelper.guid
+        play.game_guid = game.guid
+        play.owner = WeixinHelper.guid
+             
+        args = game.args
+        discount = args["origin_price"]*0.1 + rand(args["origin_price"]*0.2)
+        args["current_price"] = args["origin_price"] - discount
+        args["discount"] = args["origin_price"] - args["current_price"]
+        play.args = args
+        play.score = args["discount"]
+        
+        play.friends = []
+        play.friend_plays = []
+        play.start_at = t1 + rand(t_delta)
+        play.end_at = game.end_at
+        play.stamp = stamp
+        play.status = game.status
+
+        if block_given?
+          yield play
+        end
+
+        play.save
+
+        i += 1
+      end
+      
+      d += 1
+      sum += cnt
+    end        
+    
+    sum
+  end
+  
+  def self.seed_count()    
+    seed_cnt = [20000,20000,30000,40000,40000,30000,20000,20000]
+    t0 = Time.parse("2015-01-01").to_i    
+    t = Time.now.to_i
+    
+    add_cnt = if t > t0
+      one_day = 1.day.to_i
+      d = (t-t0)/one_day
+      t_delta = (t-t0) - d * one_day
+      seed_cnt[0,d].sum + (seed_cnt[d]||0) * t_delta / one_day
+    else
+      0
+    end
+    
+    add_cnt
+  end
+  
+  # [3,7,10,13,16,19,22,25]
+  def self.seed_kanjia_winners()
+    stamp = "SEED_KANJIA"
+    game = Game.kanjia
+    t0 = Time.parse("2015-01-01").to_i  
+    
+    t = Time.now
+    one_day = 1.day.to_i
+    plays = Play.where("game_guid='#{game.guid}' and stamp='#{stamp}' and start_at < '#{t.utc}'").order("score desc").limit(50)
+    
+    winner_cnt = [3,7,10,13,16,19,22,25]
+    closed = 0
+    hashed = {}
+    plays.each do |play|      
+      args = play.args
+      if args["current_price"]==0
+        closed += 1
+      else
+        discount = rand(args["current_price"]*0.7)
+        args["current_price"] = args["current_price"] - discount
+        args["discount"] = args["origin_price"] - args["current_price"]
+        play.args = args
+        play.score = args["discount"]
+        
+        t_delta = (t.to_i-play.start_at.to_i)*100/one_day
+        p_delta = args["discount"]*100/args["origin_price"]
+        delta = t_delta + p_delta
+        hashed[delta] = play
+      end            
+    end
+    
+    d = (t.to_i - t0)/one_day
+    need_cnt = (winner_cnt[d]||0)
+    cnt = (need_cnt - closed) * (t.to_i - t0) / ((d+1)*one_day)
+    if cnt > 0
+      keys = hashed.keys.sort{|a,b| b<=>a}[0,cnt]
+      keys.each do |key|
+        play = hashed[key]
+        args = play.args
+        play.score = args["origin_price"]
+        args["discount"] = args["origin_price"]
+        args["current_price"] = 0
+        play.args = args        
+        play.end_at = t
+        play.status = "CLOSED"
+      end
+      
+      plays.each do |play|
+        play.save
+      end
+    end
+  end
 end

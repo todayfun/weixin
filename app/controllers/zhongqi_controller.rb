@@ -209,7 +209,13 @@ class ZhongqiController < ApplicationController
   
   # link: topn?game=guid
   def topn
-    plays = Play.where(:game_guid=>params[:game]).order("score desc")
+    Play.seed_kanjia_winners
+    
+    t = Time.now.utc
+    plays = Play.where("game_guid='#{params[:game]}' and start_at < '#{t}'").order("score desc").limit(50)
+    @cnt = Play.where("game_guid='#{params[:game]}' and start_at < '#{t}'").order("score desc").count
+    @cnt += Play.seed_count
+        
     @game = Game.find_by_guid params[:game] || Game.kanjia
     @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
     @wxdata = @wxdata = wxdata()

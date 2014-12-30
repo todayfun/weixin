@@ -79,7 +79,7 @@
       <% if @topn.empty? %>
         <p>您是第一个，抢先玩！</p>
       <% else %>
-        <p>已有<%=@topn.size%>位微信用户发起了砍价活动!</p>
+        <p>已有<%=@cnt%>位微信用户发起了砍价活动，以下是前<%=@topn.size%>位!</p>
         <table>
             <thead>
                 <tr>
