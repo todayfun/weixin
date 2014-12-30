@@ -1,3 +1,4 @@
+#encoding:utf-8
 class CaidanController < ApplicationController
   layout false  
   @@subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
