@@ -228,7 +228,7 @@ class ZhongqiController < ApplicationController
         if f.match(/\d/)
           i=f.to_i
           f = ('a'..'z').to_a[i]
-          f = f.upcase if i > 6
+          f = f.upcase if [1,3,5].include?(i)
         end
         
         name = f + name[1].to_s + "..." + name[-1]
