@@ -144,14 +144,14 @@ var time_day = document.getElementById("times_day")
 var time_hour = document.getElementById("times_hour")
 var time_minute = document.getElementById("times_minute")
 var time_second = document.getElementById("second")
-var time_end = new Date("<%=@game.end_at.to_s%>")  // 设定活动结束结束时间
-time_end = time_end.getTime()
+var time_end = (new Date("<%=@game.end_at.to_s%>")).getTime();  // 设定活动结束结束时间        
+var timediff = (new Date()).getTime() - (new Date("<%=Time.now.utc%>")).getTime()
 
 //定义倒计时函数
 function count_down(){
-    var time_now = new Date("<%=Time.now.to_s%>")
+    var time_now = new Date()
     time_now = time_now.getTime()
-    var time_distance = time_end - time_now
+    var time_distance = (time_end - timediff) - time_now
     var int_day, int_hour, int_minute, int_second
 
     if(time_distance >= 0){

@@ -201,7 +201,9 @@ class ZhongqiController < ApplicationController
   def rule
     @game = Game.find_by_guid params[:game] || Game.kanjia
     @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
-    @wxdata = @wxdata = wxdata()
+    @wxdata = wxdata()
+    @wxdata[:link] = @game_url
+    
     respond_to do |format|
       format.html
     end
@@ -218,7 +220,9 @@ class ZhongqiController < ApplicationController
         
     @game = Game.find_by_guid params[:game] || Game.kanjia
     @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
-    @wxdata = @wxdata = wxdata()
+    @wxdata = wxdata()
+    @wxdata[:link] = @game_url
+    
     if !plays.empty?
       @topn = plays.map do |play|        
         name = play.owner.strip
