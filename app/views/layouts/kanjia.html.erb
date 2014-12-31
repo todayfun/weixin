@@ -83,7 +83,7 @@
     var time_hour = document.getElementById("times_hour")
     var time_minute = document.getElementById("times_minute")
     var time_second = document.getElementById("second")
-    var rtimediff = ((new Date("<%=@game.end_at.to_s%>")).getTime() - (new Date("<%=Time.now.utc%>")).getTime());  // 设定活动结束结束时间        
+    var rtimediff = ((new Date("<%=@game.end_at.localtime.to_s(:db)%>")).getTime() - (new Date("<%=Time.now.localtime.to_s(:db)%>")).getTime());  // 设定活动结束结束时间        
     var time0 = (new Date()).getTime()
 
     //定义倒计时函数
@@ -91,7 +91,7 @@
         var time_now = (new Date()).getTime()
         var time_distance = rtimediff - (time_now - time0)
         var int_day, int_hour, int_minute, int_second
-alert(rtimediff.toString()+','+(time_now-time0).toString()+','+time_distance.toString())        
+//alert(rtimediff.toString()+','+(time_now-time0).toString()+','+time_distance.toString())        
         if(time_distance >= 0){
             int_day = Math.floor(time_distance/86400000)
             time_distance -= int_day * 86400000
