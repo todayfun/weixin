@@ -224,8 +224,15 @@ class ZhongqiController < ApplicationController
         name = play.owner.strip
         next if name.blank?
         
-        name = name[0] + name[1].to_s + "..." + name[-1]
-        [name, play.start_at.to_date.to_s,play.args["origin_price"]/100.0,play.args["current_price"]/100.0]
+        f = name[0]
+        if f.match(/\d/)
+          i=f.to_i
+          f = ('a'..'z').to_a[i]
+          f = f.upcase if i > 6
+        end
+        
+        name = f + name[1].to_s + "..." + name[-1]
+        [name, play.start_at.to_date.to_s,play.args["discount"]/100.0,play.args["current_price"]/100.0]
         #"#{play.owner},#{play.args["origin_price"]},#{play.args["current_price"]},#{play.args["discount"]}"
       end    
     end
