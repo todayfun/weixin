@@ -83,7 +83,7 @@
     var time_hour = document.getElementById("times_hour")
     var time_minute = document.getElementById("times_minute")
     var time_second = document.getElementById("second")
-    var rtimediff = (new Date(Date.parse("<%=@game.end_at.localtime.to_s(:db)%>"))).getTime() - (new Date(Date.parse("<%=Time.now.localtime.to_s(:db)%>"))).getTime();  // 设定活动结束结束时间        
+    var rtimediff = <%= (@game.end_at.to_i - Time.now.to_i)*1000 %>
     var time0 = (new Date()).getTime()
 
     //定义倒计时函数
