@@ -112,10 +112,7 @@ class ZhongqiController < ApplicationController
 
     # gameview 
     if "gameview"==cmd
-      if params[:from_weixin] == "zhongqi"
-        cookies[:from_weixin] = game.guid        
-      end
-      redirect_url = url_for(:action=>"gameview",:game=>params[:game])
+      redirect_url = url_for(:action=>"gameview",:game=>params[:game],:from_weixin=>params[:from_weixin])
 
     # launchgame
     # link: kanjia?game=guid&cmd=gamelaunch
