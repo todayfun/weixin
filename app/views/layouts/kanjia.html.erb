@@ -28,7 +28,7 @@
     };
 
     function shareFriend() {            
-      alert("shareFriend"+wxData.desc);
+      alert("shareFriend");
       WeixinJSBridge.invoke('sendAppMessage',wxData, function(res) {
         //alert(res.err_msg);
         _report('send_msg', res.err_msg);
@@ -36,6 +36,7 @@
     }
     
     function shareTimeline() {      
+      alert("shareTimeline");
       WeixinJSBridge.invoke('shareTimeline',wxData, function(res) {
         //alert(res.err_msg);
         _report('timeline', res.err_msg);
@@ -52,6 +53,7 @@
      WeixinJSBridge.on('menu:share:timeline', function(argv){
       shareTimeline();
      });     
+     
      alert("onBridgeReady!");
     }
     
