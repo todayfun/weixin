@@ -45,17 +45,15 @@
     
     function onBridgeReady(){
      // 发送给好友
-     var ret = WeixinJSBridge.on('menu:share:appmessage', function(argv){
-      alert("shareFriend");
+     var ret = WeixinJSBridge.on('menu:share:appmessage', function(argv){      
       shareFriend();
      });
-     alert("shareFriend"+ret)
+     alert(ret)
      // 分享到朋友圈
-     ret = WeixinJSBridge.on('menu:share:timeline', function(argv){
-      alert("shareTimeline");
+     ret = WeixinJSBridge.on('menu:share:timeline', function(argv){      
       shareTimeline();
      });     
-     alert("shareTimeline"+ret)
+     alert(ret)
      //alert("onBridgeReady!");
     }
     
