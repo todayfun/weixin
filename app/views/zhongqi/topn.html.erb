@@ -30,7 +30,9 @@
       }, function(res) {
         //alert(res.err_msg);
         _report('send_msg', res.err_msg);
+        alert("res: <%= @wxdata[:desc].html_safe %>");
       });
+      alert("sharefriend <%= @wxdata[:desc].html_safe %>");
     }
     function shareTimeline() {      
       WeixinJSBridge.invoke('shareTimeline',{
