@@ -22,6 +22,8 @@
     
     var wxData = {      
       "img_url": "<%= @wxdata[:img_url].html_safe %>",
+      "img_width":"120",
+      "img_height":"120",
       "link": "<%= @wxdata[:link].html_safe %>",
       "desc": "<%= @wxdata[:desc].html_safe %>",      
       "title": "<%= @wxdata[:title].html_safe %>" 
@@ -30,7 +32,7 @@
     function shareFriend() {            
       alert("shareFriend");
       WeixinJSBridge.invoke('sendAppMessage',wxData, function(res) {
-        //alert(res.err_msg);
+        alert(res.err_msg);
         _report('send_msg', res.err_msg);
       });
     }
@@ -38,7 +40,7 @@
     function shareTimeline() {      
       alert("shareTimeline");
       WeixinJSBridge.invoke('shareTimeline',wxData, function(res) {
-        //alert(res.err_msg);
+        alert(res.err_msg);
         _report('timeline', res.err_msg);
       });
     }
