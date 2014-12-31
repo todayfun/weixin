@@ -21,6 +21,7 @@
     }
     
     var wxData = {      
+      "appid":"",
       "img_url": "<%= @wxdata[:img_url].html_safe %>",
       "img_width":"120",
       "img_height":"120",
@@ -48,12 +49,12 @@
      var ret = WeixinJSBridge.on('menu:share:appmessage', function(argv){      
       shareFriend();
      });
-     alert(ret)
+     //alert(ret)
      // 分享到朋友圈
      ret = WeixinJSBridge.on('menu:share:timeline', function(argv){      
       shareTimeline();
      });     
-     alert(ret)
+     //alert(ret)
      //alert("onBridgeReady!");
     }
     
