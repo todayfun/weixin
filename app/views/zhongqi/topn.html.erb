@@ -149,7 +149,7 @@ time_end = time_end.getTime()
 
 //定义倒计时函数
 function count_down(){
-    var time_now = new Date()
+    var time_now = new Date("<%=Time.now.to_s%>")
     time_now = time_now.getTime()
     var time_distance = time_end - time_now
     var int_day, int_hour, int_minute, int_second
