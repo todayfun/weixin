@@ -45,7 +45,7 @@ class ZhongqiController < ApplicationController
     # click play: weixin_auth(kanjia?game=guid&cmd=gamelaunch)
     # share: kanjia?game=guid&cmd=gameview    
     openid = get_openid()
-    game = Game.find_by_guid(params[:game]) || Game.kanjia
+    game = @game
     if game                
       if params[:from_weixin] == "zhongqi"
         cookies[:from_weixin] = game.guid        
@@ -58,7 +58,7 @@ class ZhongqiController < ApplicationController
         play = Play.where(:game_guid=>game.guid,:owner=>openid).first
         if play && openid
           @title = "已经创建了游戏，直接进入"
-          redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
+          redirect_url = url_for(:play=>play.guid,:cmd=>"playview",:action=>"kanjia")
         else
           if openid
             #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
