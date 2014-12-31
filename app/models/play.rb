@@ -108,8 +108,8 @@ class Play < ActiveRecord::Base
   end
   
   def self.seed_count()    
-    seed_cnt = [20000,20000,30000,40000,40000,30000,20000,20000]
-    t0 = Time.parse("2015-01-01").to_i    
+    seed_cnt = [20000,20000,30000,40000,40000,30000,20000,20000,5000]
+    t0 = Time.parse("2014-12-31").to_i    
     t = Time.now.to_i
     
     add_cnt = if t > t0
@@ -128,13 +128,13 @@ class Play < ActiveRecord::Base
   def self.seed_kanjia_winners()
     stamp = "SEED_KANJIA"
     game = Game.kanjia
-    t0 = Time.parse("2015-01-01").to_i  
+    t0 = Time.parse("2014-12-31").to_i  
     
     t = Time.now
     one_day = 1.day.to_i
     plays = Play.where("game_guid='#{game.guid}' and stamp='#{stamp}' and start_at < '#{t.utc}'").order("score desc").limit(50)
     
-    winner_cnt = [3,7,10,13,16,19,22,25]
+    winner_cnt = [3,7,10,13,16,19,22,24,25]
     closed = 0
     hashed = {}
     plays.each do |play|      
