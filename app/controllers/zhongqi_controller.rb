@@ -6,12 +6,13 @@ class ZhongqiController < ApplicationController
     wxdata = {
     :title=>"一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。",
     :img_url=>url_for(:controller=>"mac.jpg"),
-    :link=>url_for(:action=>"kanjia",:game=>Game.kanjia.guid,:cmd=>"gameview"),
+    :link=>url_for(:action=>"gameview",:game=>Game.kanjia.guid),
     :desc=>"免费召唤MacBook Air，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
     }
     
     wxdata
   end  
+  
   def reset
     cookies[:openid] = nil
     cookies[:subscribed_by] = nil
@@ -24,9 +25,76 @@ class ZhongqiController < ApplicationController
     end
   end
   
-  def kanjia
+  def gameview
     # get current command
     subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
+    @label = ""
+    @btn_links = []
+    @tair_links = []
+    @title = ""    
+    @notice = nil
+    @wxdata = wxdata()
+       
+    @game = Game.find_by_guid(params[:game]) || Game.kanjia    
+    
+    redirect_url = nil
+    cmd = params[:cmd]||"gameview"    
+
+    # gameview 
+    # link:kanjia?game=guid&cmd=gameview
+    # click play: weixin_auth(kanjia?game=guid&cmd=gamelaunch)
+    # share: kanjia?game=guid&cmd=gameview    
+    openid = get_openid()
+    game = Game.find_by_guid(params[:game]) || Game.kanjia
+    if game                
+      if params[:from_weixin] == "zhongqi"
+        cookies[:from_weixin] = game.guid        
+      end
+
+      unless has_subscribed?
+        @label = "#{cmd} fail: 还没订阅公众号"
+        redirect_url = subscribe_url
+      else          
+        play = Play.where(:game_guid=>game.guid,:owner=>openid).first
+        if play && openid
+          @title = "已经创建了游戏，直接进入"
+          redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
+        else
+          if openid
+            #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+            @label = view_context.link_to(%{<div class="btn btn-lg btn-danger">参与砍价!</div>}.html_safe,
+              url_for(:game=>game.guid,:cmd=>"gamelaunch"))
+          else
+            @label = input_nickname(game.guid)
+          end
+          @title = %{
+          <div class="btn btn-danger btn-lg active">
+          快来参与： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>
+          </div>
+          }          
+          @wxdata[:link] = url_for(:game=>game.guid,:action=>"gameview")
+          #@btn_links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
+          @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>game.guid))            
+          @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>game.guid))
+        end
+      end
+    else
+      @label = "#{cmd} fail: cant found game"
+    end
+    
+    if redirect_url
+      respond_to do |format|
+        format.html {redirect_to redirect_url}
+      end
+    else
+      respond_to do |format|
+        format.html
+      end
+    end
+  end
+  
+  def kanjia
+    # get current command    
     @label = ""
     @btn_links = []
     @tair_links = []
@@ -43,47 +111,8 @@ class ZhongqiController < ApplicationController
     cmd = params[:cmd]||"gameview"    
 
     # gameview 
-    # link:kanjia?game=guid&cmd=gameview
-    # click play: weixin_auth(kanjia?game=guid&cmd=gamelaunch)
-    # share: kanjia?game=guid&cmd=gameview
     if "gameview"==cmd
-      openid = get_openid()
-      game = Game.find_by_guid(params[:game]) || Game.kanjia
-      if game                
-        if params[:from_weixin] == "zhongqi"
-          cookies[:from_weixin] = game.guid        
-        end
-        
-        unless has_subscribed?
-          @label = "#{cmd} fail: 还没订阅公众号"
-          redirect_url = subscribe_url
-        else          
-          play = Play.where(:game_guid=>game.guid,:owner=>openid).first
-          if play && openid
-            @title = "已经创建了游戏，直接进入"
-            redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
-          else
-            if openid
-              #@label = view_context.link_to("参与砍价",url_for(:game=>game.guid,:cmd=>"gamelaunch"))
-              @label = view_context.link_to(%{<div class="btn btn-lg btn-danger">参与砍价!</div>}.html_safe,
-                url_for(:game=>game.guid,:cmd=>"gamelaunch"))
-            else
-              @label = input_nickname(game.guid)
-            end
-            @title = %{
-            <div class="btn btn-danger btn-lg active">
-            快来参与： <del class="kan-old">￥#{game.args["origin_price"]/100.0}</del> <strong class="kan-new">￥#{game.args["origin_price"]/100.0}</strong>
-            </div>
-            }          
-            @wxdata[:link] = url_for(:game=>game.guid,:cmd=>"gameview")
-            #@btn_links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>game.guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>game.guid))]
-            @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>game.guid))            
-            @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>game.guid))
-          end
-        end
-      else
-        @label = "#{cmd} fail: cant found game"
-      end
+      redirect_url = url_for(:action=>"gameview",:game=>params[:game])
 
     # launchgame
     # link: kanjia?game=guid&cmd=gamelaunch
@@ -112,7 +141,7 @@ class ZhongqiController < ApplicationController
         @label = "请输入正确的微信昵称"
         flash[:notice] = {:msg=>"请输入正确的微信昵称",:type=>"warning"}
         cookies[:notice]=true
-        redirect_url = url_for(:game=>params[:game],:cmd=>"gameview")
+        redirect_url = url_for(:game=>params[:game],:action=>"gameview")
       end
 
     # playview
@@ -153,14 +182,13 @@ class ZhongqiController < ApplicationController
           friend = get_friend()
           if has_played?(play,friend)
             @label = %{<div class="btn btn-lg btn-danger">您已经帮TA砍过价了!</div>}
-            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:cmd=>"gameview"))
+            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:action=>"gameview"))
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">找朋友帮TA砍</div>}.html_safe,"#",:onclick=>"showShare();")
           else
             @label = view_context.link_to(%{<div class="btn btn-lg btn-danger">帮TA砍价</div>}.html_safe,
               url_for(:play=>play.guid,:cmd=>"doplay"))   
-            
-            # @btn_links = [view_context.link_to("我也要0元拿",url_for(:game=>play.game_guid,:cmd=>"gameview"))]
-            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:cmd=>"gameview"))                     
+                        
+            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:action=>"gameview"))                     
           end
         end        
       else
@@ -200,7 +228,7 @@ class ZhongqiController < ApplicationController
   # link: rule?game=guid
   def rule
     @game = Game.find_by_guid params[:game] || Game.kanjia
-    @game_url = url_for(:action=>"kanjia",:game=>@game.guid, :cmd=>"gameview")
+    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
@@ -219,7 +247,7 @@ class ZhongqiController < ApplicationController
     @cnt += Play.seed_count
         
     @game = Game.find_by_guid params[:game] || Game.kanjia
-    @game_url = url_for(:action=>"kanjia",:game=>@game.guid, :cmd=>"gameview")
+    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
@@ -259,7 +287,7 @@ class ZhongqiController < ApplicationController
     @play = Play.find_by_guid params[:play]
     @game = Game.find_by_guid(@play.game_guid) if @play
     @game ||= Game.find_by_guid params[:game] || Game.kanjia
-    @game_url = url_for(:action=>"kanjia",:game=>@game.guid, :cmd=>"gameview")
+    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
