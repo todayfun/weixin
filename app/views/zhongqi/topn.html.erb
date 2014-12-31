@@ -85,8 +85,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>微信号</th>                    
-                    <th>砍掉金额</th>
+                    <th>微信号</th>                                        
                     <th>砍后价格</th>
                     <th>砍价时间</th>
                 </tr>
@@ -95,8 +94,7 @@
               <% @topn.each_with_index do |r,idx| %>
                 <tr>
                   <td>#<%="#{idx+1} #{r[0]}"%></td>                  
-                  <td><del><%=r[2]%></del></td>
-                  <td><%=r[3]%></td>
+                  <td><del style="font-size: 14px"><%=r[2]%></del><%=r[3]%></td>                  
                   <td><%= r[1] %></td>
                 </tr>
               <%end%>
