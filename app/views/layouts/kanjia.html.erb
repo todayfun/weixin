@@ -45,18 +45,18 @@
     
     function onBridgeReady(){
      // 发送给好友
-     WeixinJSBridge.on('menu:share:appmessage', function(argv){
+     var ret = WeixinJSBridge.on('menu:share:appmessage', function(argv){
       alert("shareFriend");
       shareFriend();
      });
-
+     alert("shareFriend"+ret)
      // 分享到朋友圈
-     WeixinJSBridge.on('menu:share:timeline', function(argv){
+     ret = WeixinJSBridge.on('menu:share:timeline', function(argv){
       alert("shareTimeline");
       shareTimeline();
      });     
-     
-     alert("onBridgeReady!");
+     alert("shareTimeline"+ret)
+     //alert("onBridgeReady!");
     }
     
     // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
