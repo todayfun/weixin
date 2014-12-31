@@ -91,7 +91,7 @@
         var time_now = (new Date()).getTime()
         var time_distance = rtimediff - (time_now - time0)
         var int_day, int_hour, int_minute, int_second
-
+alert(rtimediff.toString()+','+(time_now-time0).toString()+','+time_distance.toString())        
         if(time_distance >= 0){
             int_day = Math.floor(time_distance/86400000)
             time_distance -= int_day * 86400000
