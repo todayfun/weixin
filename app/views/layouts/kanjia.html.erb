@@ -47,13 +47,13 @@
     function onBridgeReady(){
      // share to friend
     WeixinJSBridge.on('menu:share:appmessage', function(argv){
-      alert("shareFriend");
+      //alert("shareFriend");
         shareFriend();
     });
 
     // share to timeline
     WeixinJSBridge.on('menu:share:timeline', function(argv){
-      alert("shareTimeline");
+      //alert("shareTimeline");
         shareTimeline();
     });
      //alert("onBridgeReady!");
@@ -83,14 +83,13 @@
     var time_hour = document.getElementById("times_hour")
     var time_minute = document.getElementById("times_minute")
     var time_second = document.getElementById("second")
-    var time_end = (new Date("<%=@game.end_at.to_s%>")).getTime();  // 设定活动结束结束时间        
-    var timediff = (new Date()).getTime() - (new Date("<%=Time.now.utc%>")).getTime()
+    var rtimediff = ((new Date("<%=@game.end_at.to_s%>")).getTime() - (new Date("<%=Time.now.utc%>")).getTime());  // 设定活动结束结束时间        
+    var time0 = (new Date()).getTime()
 
     //定义倒计时函数
     function count_down(){
-        var time_now = new Date()
-        time_now = time_now.getTime()
-        var time_distance = (time_end - timediff) - time_now
+        var time_now = (new Date()).getTime()
+        var time_distance = rtimediff - (time_now - time0)
         var int_day, int_hour, int_minute, int_second
 
         if(time_distance >= 0){
