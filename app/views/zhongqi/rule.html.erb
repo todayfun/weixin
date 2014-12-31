@@ -1,129 +1,51 @@
-<html>
-<head>
-  <title>一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。</title>
-  <link href="/kan.css?<%=Time.now.to_i%>" media="all" rel="stylesheet" type="text/css">
-  <%= csrf_meta_tags %> 
-   <!--允许全屏-->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <script>
-    function isWeiXin(){ 
-     var useragent = navigator.userAgent;
-     if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
-        // 这里警告框会阻塞当前页面继续加载
-        alert('已禁止本次访问：您必须使用微信内置浏览器访问本页面！');
-        // 以下代码是用javascript强行关闭当前页面
-        var opened = window.open('about:blank', '_self');
-        opened.opener = null;
-        opened.close();
-      }
-    }     
-    
-    function shareFriend() {            
-      WeixinJSBridge.invoke('sendAppMessage',{      
-      "img_url": "<%= @wxdata[:img_url].html_safe %>",
-      "img_width": "640",
-      "img_height": "640",
-      "link": "<%= @wxdata[:link].html_safe %>",
-      "desc": "<%= @wxdata[:desc].html_safe %>",
-      "description":"<%= @wxdata[:desc].html_safe %>",
-      "title": "<%= @wxdata[:title].html_safe %>"
-      }, function(res) {
-        //alert(res.err_msg);
-        _report('send_msg', res.err_msg);
-      });
-    }
-    function shareTimeline() {      
-      WeixinJSBridge.invoke('shareTimeline',{
-      "img_url": "<%= @wxdata[:img_url].html_safe %>",
-      "img_width": "640",
-      "img_height": "640",
-      "link": "<%= @wxdata[:link].html_safe %>",
-      "desc": "<%= @wxdata[:desc].html_safe %>",
-      "description":"<%= @wxdata[:desc].html_safe %>",
-      "title": "<%= @wxdata[:title].html_safe %>"
-      }, function(res) {
-        //alert(res.err_msg);
-        _report('timeline', res.err_msg);
-      });
-    }
-    
-    function onBridgeReady(){
-     // 发送给好友
-     WeixinJSBridge.on('menu:share:appmessage', function(argv){
-     shareFriend();
-     });
+<div id="times_container" class="kan-clock list">活动倒计时：<span id="times_day"> </span>天 <span id="times_hour"> </span>小时 <span id="times_minute"> </span>分 <span id="second"> </span>秒</div>
+<div class="kan-content">
+  <h3 class="red">活动时间：2014.12.28-2015.1.8</h3>
+  <p class="red">活动规则：</p>
+  <ol>
+  （1）参加本次活动请使用微信客户端参加，每个用户只能参加一次，活动期间请勿退出微信或更换手机，否则将有可能导致数据丢失而影响兑奖；报名时填写的微信号是你参加活动认领奖品的唯一凭证，请如实填写，否则会影响到奖品兑现。<br>
+  （2）MacBook Air疯狂砍，砍到0元拿回家，每砍一次，价格就会降低很多，自己只能砍一次，邀请朋友来砍可以多次，每天一次，能砍到多少价格就看你能召唤多少小伙伴来帮忙啦！<br>
+  （3）奖品数量有限，首期活动30台，只要砍到0元，无需支付任何费用，顺丰包邮寄到家。活动过程中，只要还能砍价，就说明还有货，可放心参加！<br>
+  （4）本次活动以邀请好友助力的方式进行，作弊软件刷单的行为会被系统识别并禁止，取消活动资格，所以，请不要作弊哦。<br>
+  （5）如果活动结束时，最终没有砍到0元，那么砍下的金额可以在下一期活动中使用，小伙伴们不会白忙活的哦。<br>
+  （6）活动过程中，实时公布获胜者名单，活动结束后5个工作日内，活动官方将联系获胜者，请保持报名微信畅通，并将奖品全部发放完毕，顺丰包邮。<br>
+  （7）本次活动的奖品MacBook Air，为大陆行货，全新未拆封，有发票，全国联保。<br>
+  </ol>
+</div>
 
-     // 分享到朋友圈
-     WeixinJSBridge.on('menu:share:timeline', function(argv){
-     shareTimeline();
-     });     
-    }
-    // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
-    if (typeof WeixinJSBridge == "undefined"){
-        if( document.addEventListener ){
-            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-        }else if (document.attachEvent){
-            document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
-            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-        }
-    }else{
-        onBridgeReady();
-    }
-    isWeiXin();
-  </script>
-</head>
-<body>  
-  <div id="content">          
-      <div class="kan-content">
-          <h3 class="red">活动时间：2014.12.28-2015.1.8</h3>
-          <p class="red">活动规则：</p>
-          <ol>
-            （1）参加本次活动请使用微信客户端参加，每个用户只能参加一次，活动期间请勿退出微信或更换手机，否则将有可能导致数据丢失而影响兑奖；报名时填写的微信号是你参加活动认领奖品的唯一凭证，请如实填写，否则会影响到奖品兑现。<br>
-（2）MacBook Air疯狂砍，砍到0元拿回家，每砍一次，价格就会降低很多，自己只能砍一次，邀请朋友来砍可以多次，每天一次，能砍到多少价格就看你能召唤多少小伙伴来帮忙啦！<br>
-（3）奖品数量有限，首期活动30台，只要砍到0元，无需支付任何费用，顺丰包邮寄到家。活动过程中，只要还能砍价，就说明还有货，可放心参加！<br>
-（4）本次活动以邀请好友助力的方式进行，作弊软件刷单的行为会被系统识别并禁止，取消活动资格，所以，请不要作弊哦。<br>
-（5）如果活动结束时，最终没有砍到0元，那么砍下的金额可以在下一期活动中使用，小伙伴们不会白忙活的哦。<br>
-（6）活动过程中，实时公布获胜者名单，活动结束后5个工作日内，活动官方将联系获胜者，请保持报名微信畅通，并将奖品全部发放完毕，顺丰包邮。<br>
-（7）本次活动的奖品MacBook Air，为大陆行货，全新未拆封，有发票，全国联保。<br>
-          </ol>
-      </div>
-
-      <div class="kan-section">
-        <a href="javascript:void(0)" onclick="showShare();">
-          <div class="btn btn-lg btn-danger">
-            分享到朋友圈
-          </div>
-          </a>
-      </div>
-     <div class="kan-section">
-       <a href="<%=@game_url.html_safe%>">
-         <div class="btn btn-lg btn-default">
-           返回我的活动
-          </div>
-         </a>
-      </div>
-    
-    <div class="" id="share-wrap"></div>
-      <div class="kan-info kan-modal white lh13" id="share" style="display:none" onclick="hideShare();">
-        <div class="kan-modal-dialog">          
-          <p>1. 点击微信右上角的分享按钮</p>
-          <p>2. 就可以分享到朋友圈了</p>
-          <p>3. 发送给朋友，更快砍价！</p>
-        </div>
-      </div>
-
-    <script type="text/javascript"  language="javascript">
-      function showShare() {
-        document.getElementById('share').style.display = 'block';
-        (elem=document.getElementById('share-wrap')).setAttribute("class","kan-window-wrap");
-        eraseCookie('notice');
-      }
-      function hideShare() {
-        document.getElementById('share').style.display = 'none';
-        (elem=document.getElementById('share-wrap')).setAttribute("class","");          
-      }
-      hideShare();
-    </script>
+<div class="kan-section">
+  <a href="javascript:void(0)" onclick="showShare();">
+  <div class="btn btn-lg btn-danger">
+    分享到朋友圈
   </div>
-</body>
-</html>
+  </a>
+</div>
+<div class="kan-section">
+  <a href="<%=@game_url.html_safe%>">
+  <div class="btn btn-lg btn-default">
+   返回我的活动
+  </div>
+  </a>
+</div>
+
+<div class="" id="share-wrap"></div>
+<div class="kan-info kan-modal white lh13" id="share" style="display:none" onclick="hideShare();">
+  <div class="kan-modal-dialog">          
+  <p>1. 点击微信右上角的分享按钮</p>
+  <p>2. 就可以分享到朋友圈了</p>
+  <p>3. 发送给朋友，更快砍价！</p>
+  </div>
+</div>
+
+<script type="text/javascript"  language="javascript">
+  function showShare() {
+    document.getElementById('share').style.display = 'block';
+    (elem=document.getElementById('share-wrap')).setAttribute("class","kan-window-wrap");
+    eraseCookie('notice');
+  }
+  function hideShare() {
+    document.getElementById('share').style.display = 'none';
+    (elem=document.getElementById('share-wrap')).setAttribute("class","");          
+  }
+  hideShare();
+</script>

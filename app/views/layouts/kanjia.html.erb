@@ -1,0 +1,142 @@
+<html>
+<head>
+  <title>一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。</title>
+  <%= csrf_meta_tags %>
+  <link href="/kan.css?<%=Time.now.to_i%>" media="all" rel="stylesheet" type="text/css">
+  <meta charset="utf-8" />
+  <!--允许全屏-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+  <script>
+    function isWeiXin(){ 
+     var useragent = navigator.userAgent;
+     if (useragent.match(/MicroMessenger/i) != 'MicroMessenger') {
+        // 这里警告框会阻塞当前页面继续加载
+        alert('已禁止本次访问：您必须使用微信内置浏览器访问本页面！');
+        // 以下代码是用javascript强行关闭当前页面
+        var opened = window.open('about:blank', '_self');
+        opened.opener = null;
+        opened.close();
+      }
+    }
+    
+    function shareFriend() {            
+      WeixinJSBridge.invoke('sendAppMessage',{      
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
+      "img_width": "640",
+      "img_height": "640",
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",      
+      "title": "<%= @wxdata[:title].html_safe %>"
+      }, function(res) {
+        //alert(res.err_msg);
+        _report('send_msg', res.err_msg);
+      });
+    }
+    
+    function shareTimeline() {      
+      WeixinJSBridge.invoke('shareTimeline',{
+      "img_url": "<%= @wxdata[:img_url].html_safe %>",
+      "img_width": "640",
+      "img_height": "640",
+      "link": "<%= @wxdata[:link].html_safe %>",
+      "desc": "<%= @wxdata[:desc].html_safe %>",      
+      "title": "<%= @wxdata[:title].html_safe %>"
+      }, function(res) {
+        //alert(res.err_msg);
+        _report('timeline', res.err_msg);
+      });
+    }
+    
+    function WeixinAPIs(){
+        var html = [];
+        for(var key in window.WeixinJSBridge) {
+            var js = 'WeixinJSBridge.' + key + ' = ' + window.WeixinJSBridge[key].toString();            
+            html.push('<pre class="brush:js;toolbar:false;">' + js + '</pre>')
+        }
+
+        document.getElementById('WeixinJsApi').innerHTML = html.join('');
+    }
+    
+    function onBridgeReady(){
+     // 发送给好友
+     WeixinJSBridge.on('menu:share:appmessage', function(argv){
+      shareFriend();
+     });
+
+     // 分享到朋友圈
+     WeixinJSBridge.on('menu:share:timeline', function(argv){
+      shareTimeline();
+     });     
+     alert("onBridgeReady!");
+    }
+    
+    // 当微信内置浏览器完成内部初始化后会触发WeixinJSBridgeReady事件。
+    if (typeof WeixinJSBridge == "undefined"){
+        if( document.addEventListener ){
+            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+        }else if (document.attachEvent){
+            document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
+            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+        }
+    }else{
+        onBridgeReady();
+    }
+    //isWeiXin();
+  </script>
+</head>
+<body>    
+  <div id="content">
+    <%= yield %>
+  </div>    
+  <script type="text/javascript"  language="javascript">
+    setTimeout("count_down()",1000);
+    var time_day = document.getElementById("times_day")
+    var time_hour = document.getElementById("times_hour")
+    var time_minute = document.getElementById("times_minute")
+    var time_second = document.getElementById("second")
+    var time_end = (new Date("<%=@game.end_at.to_s%>")).getTime();  // 设定活动结束结束时间        
+    var timediff = (new Date()).getTime() - (new Date("<%=Time.now.utc%>")).getTime()
+
+    //定义倒计时函数
+    function count_down(){
+        var time_now = new Date()
+        time_now = time_now.getTime()
+        var time_distance = (time_end - timediff) - time_now
+        var int_day, int_hour, int_minute, int_second
+
+        if(time_distance >= 0){
+            int_day = Math.floor(time_distance/86400000)
+            time_distance -= int_day * 86400000
+
+            int_hour = Math.floor(time_distance/3600000)
+            time_distance -= int_hour * 3600000
+
+            int_minute = Math.floor(time_distance/60000)
+            time_distance -= int_minute * 60000
+
+            int_second = Math.floor(time_distance/1000)
+
+            if(int_hour < 10)
+            int_hour = "0" + int_hour
+
+            if(int_minute < 10) 
+            int_minute = "0" + int_minute
+
+            if(int_second < 10)
+            int_second = "0" + int_second
+
+            time_day.innerHTML = int_day
+            time_hour.innerHTML = int_hour
+            time_minute.innerHTML = int_minute
+            time_second.innerHTML = int_second
+            setTimeout("count_down()",1000)
+        }else{
+            times_container.innerHTML='来晚一步，活动已结束'
+        }
+
+      }
+    </script>
+</body>
+
+</html>

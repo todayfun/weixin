@@ -1,6 +1,6 @@
 # encoding:utf-8
 class ZhongqiController < ApplicationController
-  layout false  
+  layout "kanjia"
 
   def wxdata
     wxdata = {
@@ -200,7 +200,7 @@ class ZhongqiController < ApplicationController
   # link: rule?game=guid
   def rule
     @game = Game.find_by_guid params[:game] || Game.kanjia
-    @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
+    @game_url = url_for(:action=>"kanjia",:game=>@game.guid, :cmd=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
@@ -219,7 +219,7 @@ class ZhongqiController < ApplicationController
     @cnt += Play.seed_count
         
     @game = Game.find_by_guid params[:game] || Game.kanjia
-    @game_url = url_for(:action=>"kanjia",:game=>params[:game]||Game.kanjia.guid, :cmd=>"gameview")
+    @game_url = url_for(:action=>"kanjia",:game=>@game.guid, :cmd=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
@@ -258,7 +258,10 @@ class ZhongqiController < ApplicationController
   def play_history
     @play = Play.find_by_guid params[:play]
     @game = Game.find_by_guid(@play.game_guid) if @play
-    @wxdata = @wxdata = wxdata()
+    @game ||= Game.find_by_guid params[:game] || Game.kanjia
+    @game_url = url_for(:action=>"kanjia",:game=>@game.guid, :cmd=>"gameview")
+    @wxdata = wxdata()
+    @wxdata[:link] = @game_url
     
     @title = %{
     <div class="btn btn-danger">
