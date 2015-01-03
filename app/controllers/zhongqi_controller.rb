@@ -1,6 +1,7 @@
 # encoding:utf-8
 class ZhongqiController < ApplicationController
   layout "kanjia"
+  @@subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
 
   def wxdata
     wxdata = {
@@ -17,17 +18,15 @@ class ZhongqiController < ApplicationController
     cookies[:openid] = nil
     cookies[:subscribed_by] = nil
     cookies[:from_weixin] = nil
-    cookies[:friend] = nil
-    subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
+    cookies[:friend] = nil    
     
     respond_to do |format|
-      format.html {redirect_to subscribe_url}
+      format.html {redirect_to @@subscribe_url}
     end
   end
   
   def gameview
-    # get current command
-    subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
+    # get current command    
     @label = ""
     @btn_links = []
     @tair_links = []
@@ -53,7 +52,7 @@ class ZhongqiController < ApplicationController
 
       unless has_subscribed?
         @label = "#{cmd} fail: 还没订阅公众号"
-        redirect_url = subscribe_url
+        redirect_url = @@subscribe_url
       else          
         play = Play.where(:game_guid=>game.guid,:owner=>openid).first
         if play && openid
@@ -174,10 +173,8 @@ class ZhongqiController < ApplicationController
             #@label = view_context.link_to("挥刀自砍",url_for(:play=>play.guid,:cmd=>"doplay"))
             @label = view_context.link_to(%{<div class="btn btn-lg btn-danger">挥刀自砍</div>}.html_safe,
               url_for(:play=>play.guid,:cmd=>"doplay"))
-          end
-          #@btn_links = [view_context.link_to("查看砍价规则",url_for(:action=>"rule",:game=>play.game_guid)),view_context.link_to("查看砍价排行",url_for(:action=>"topn",:game=>play.game_guid))]
-          @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>play.game_guid))
-          @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>play.game_guid))          
+          end          
+                
         else
           friend = get_friend()
           if has_played?(play,friend)
@@ -191,6 +188,9 @@ class ZhongqiController < ApplicationController
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要0元拿</div>}.html_safe,url_for(:game=>play.game_guid,:action=>"gameview"))                     
           end
         end        
+        
+        @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价规则</div>}.html_safe,url_for(:action=>"rule",:game=>play.game_guid))
+        @tair_links << view_context.link_to(%{<div class="kan-section tight">查看砍价排行</div>}.html_safe,url_for(:action=>"topn",:game=>play.game_guid))    
       else
         @label = "#{cmd} fail: cant found play"
       end
@@ -199,14 +199,20 @@ class ZhongqiController < ApplicationController
     # link: weixin_auth(kanjia?play=guid&cmd=playview)
     # doplay: weixin_auth(kanjia?play=guid&cmd=doplay)
     # share: weixin_auth(kanjia?play=guid&cmd=playview)    
-    elsif "doplay"==cmd
+    elsif "doplay"==cmd      
       openid = get_openid()||get_friend()
       play = Play.find_by_guid(params[:play])
       if play
-        @label = "do play"        
-        flash[:notice] = doplay(play,openid)
-        cookies[:notice]=true
-        redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
+        if has_subscribed?
+          @label = "do play"        
+          flash[:notice] = doplay(play,openid)
+          cookies[:notice]=true          
+          redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
+        else
+          @label = "#{cmd} fail: 还没订阅公众号"
+          cookies[:doplay_url] = request.url
+          redirect_url = @@subscribe_url
+        end
       else
         @label = "#{cmd} fail: cant found play"
       end
@@ -222,6 +228,22 @@ class ZhongqiController < ApplicationController
       respond_to do |format|
         format.html
       end
+    end
+  end
+  
+  def dokanjia    
+    game = Game.kanjia
+    redirect_url = url_for(:action=>"gameview", :game=>game.guid)
+    if params[:from_weixin] == "zhongqi"
+      cookies[:from_weixin] = game.guid
+    end
+    
+    if !cookies[:doplay_url].blank?
+      redirect_url = cookies[:doplay_url]      
+    end
+    
+    respond_to do |format|
+      format.html {redirect_to redirect_url}
     end
   end
   
@@ -301,7 +323,7 @@ class ZhongqiController < ApplicationController
     end
   end
   
-  def get_openid
+  def get_openid    
     cookies[:openid]
     cookies[:openid].blank? ? nil : cookies[:openid].strip
   end
