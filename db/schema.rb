@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(:version => 20141222083503) do
     t.string   "nickname"
     t.string   "sex"
     t.string   "city"
-    t.time     "subscribe_time"
+    t.datetime "subscribe_time"
     t.datetime "created_at",     :null => false
     t.datetime "updated_at",     :null => false
   end
@@ -33,8 +33,8 @@ ActiveRecord::Schema.define(:version => 20141222083503) do
     t.text     "args"
     t.text     "rule"
     t.text     "winners"
-    t.time     "start_at"
-    t.time     "end_at"
+    t.datetime "start_at"
+    t.datetime "end_at"
     t.string   "status"
     t.string   "stamp"
     t.datetime "created_at", :null => false
@@ -53,8 +53,8 @@ ActiveRecord::Schema.define(:version => 20141222083503) do
     t.text     "args"
     t.text     "friends"
     t.text     "friend_plays"
-    t.time     "start_at"
-    t.time     "end_at"
+    t.datetime "start_at"
+    t.datetime "end_at"
     t.string   "status"
     t.string   "stamp"
     t.datetime "created_at",   :null => false
