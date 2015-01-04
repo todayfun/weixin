@@ -72,6 +72,11 @@ class WeixinHelper
     url
   end
   
+  def self.with_auth_userinfo(url)     
+    url = %{https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{APPID}&redirect_uri=#{CGI.escape(url)}&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect}
+    url
+  end
+  
   def self.text_msg(to,from,content)
      rsp = %{<xml>
     <ToUserName><![CDATA[#{to}]]></ToUserName>

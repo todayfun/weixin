@@ -15,8 +15,7 @@ class CaidanController < ApplicationController
   end  
   
   def reset
-    cookies[:openid] = nil
-    cookies[:subscribed_by] = nil
+    cookies[:openid] = nil    
     cookies[:from_weixin] = nil
     cookies[:friend] = nil    
     
@@ -116,6 +115,24 @@ class CaidanController < ApplicationController
     
     notice = %{你已经帮TA砸过一次啦，不能再砸啦！邀请其他小伙伴来帮忙砸吧。心动不如行动，快来参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！}
     
+    
+    
+    respond_to do |format|
+      format.html {redirect_to redirect_url}
+    end
+  end
+    
+  def dokanjia
+    game = Game.caidan
+    redirect_url = url_for(:action=>"gameview", :game=>game.guid)
+    if params[:from_weixin] == "zhongqi"
+      cookies[:from_weixin] = game.guid
+    end
+    
+    if !cookies[:doplay_url].blank?
+      redirect_url = cookies[:doplay_url]      
+    end
+    
     respond_to do |format|
       format.html {redirect_to redirect_url}
     end
@@ -163,5 +180,13 @@ class CaidanController < ApplicationController
     key = "#{openid},#{Date.today.to_s}"
     friends.include?(key)
     #false
+  end
+  
+  def has_subscribed?
+    if !cookies[:from_weixin].blank?
+      true
+    else
+      false
+    end    
   end
 end
