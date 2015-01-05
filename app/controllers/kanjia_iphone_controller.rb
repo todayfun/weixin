@@ -249,7 +249,7 @@ class KanjiaIphoneController < ApplicationController
   # link: rule?game=guid
   def rule
     @game = Game.find_by_guid params[:game] || Game.kanjia_iphone
-    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
+    @game_url = request.referer || url_for(:action=>"gameview",:game=>@game.guid)
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
@@ -268,7 +268,7 @@ class KanjiaIphoneController < ApplicationController
     @cnt += Play.seed_count_iphone
         
     @game = Game.find_by_guid params[:game] || Game.kanjia_iphone
-    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
+    @game_url = request.referer || url_for(:action=>"gameview",:game=>@game.guid)
     @wxdata = wxdata()
     @wxdata[:link] = @game_url
     
