@@ -55,17 +55,31 @@ class Play < ActiveRecord::Base
   def self.seed_kanjia_players()
     stamp = "SEED_KANJIA"
     game = Game.kanjia
+    from_date = "2014-12-28"
+    days = 11 # 日期从2014-12-28-2015-01-07共11天
+    self.do_seed_kanjia_players(game,stamp,from_date,days)
+  end
+  
+  def self.seed_kanjia_players_iphone()
+    stamp = "SEED_KANJIA_IPHONE"
+    game = Game.kanjia_iphone
+    from_date = "2015-01-05"
+    days = 12 # 日期从2015-01-05-2015-01-16共12天
+    self.do_seed_kanjia_players(game,stamp,from_date,days)
+  end
+  
+  def self.do_seed_kanjia_players(game,stamp,from_date,days)
+    cnt = Play.where(:game_guid=>game.guid,:stamp=>stamp).count
+    return cnt if cnt > 50
     
     Play.where(:game_guid=>game.guid,:stamp=>stamp).delete_all
-    
-    # 日期从2014-12-28-2015-01-07共11天
-    day = 11
-    t1 = Time.parse("2014-12-28")   
-    one_day = 1.day.to_i
+            
+    t1 = Time.parse(from_date)   
+    one_day = 1.day.to_i    
     
     d = 1
-    sum = 0
-    while(d <= day) do
+    sum = 0 
+    while(d <= days) do
       # 每天生产50-100个
       cnt = 50 + rand(50)      
       i = 1
@@ -107,9 +121,23 @@ class Play < ActiveRecord::Base
     sum
   end
   
+  # 设置参加砍价的人数
   def self.seed_count()    
     seed_cnt = [20000,20000,30000,40000,40000,30000,20000,20000,5000]
-    t0 = Time.parse("2014-12-31").to_i    
+    from_date = "2014-12-31"
+    
+    self.do_seed_count(from_date, seed_cnt)
+  end
+  
+  # 设置参加砍价的人数
+  def self.seed_count_iphone()
+    seed_cnt = [20000,20000,30000,40000,40000,30000,20000,20000,5000]
+    from_date = "2015-01-05"
+    self.do_seed_count(from_date, seed_cnt)
+  end
+  
+  def self.do_seed_count(from_date,seed_cnt)
+    t0 = Time.parse(from_date).to_i    
     t = Time.now.to_i
     
     add_cnt = if t > t0
@@ -125,16 +153,31 @@ class Play < ActiveRecord::Base
   end
   
   # [3,7,10,13,16,19,22,25]
+  # 设置看到0的人数
   def self.seed_kanjia_winners()
     stamp = "SEED_KANJIA"
     game = Game.kanjia
-    t0 = Time.parse("2014-12-31").to_i  
+    from_date = "2014-12-31"
+    winner_cnt = [3,7,10,13,16,19,22,24,25]
     
-    t = Time.now
+    self.do_seed_kanjia_winners(game,stamp,from_date,winner_cnt)
+  end
+  
+  def self.seed_kanjia_winners_iphone()
+    stamp = "SEED_KANJIA_IPHONE"
+    game = Game.kanjia_iphone
+    from_date = "2015-01-06"
+    winner_cnt = [3,7,10,13,16,19,22,24,25]
+    
+    self.do_seed_kanjia_winners(game,stamp,from_date,winner_cnt)
+  end
+  
+  def self.do_seed_kanjia_winners(game,stamp,from_date,winner_cnt)
+    t0 = Time.parse(from_date).to_i  
+    t = Time.now    
     one_day = 1.day.to_i
     plays = Play.where("game_guid='#{game.guid}' and stamp='#{stamp}' and start_at < '#{t.utc}'").order("score desc").limit(50)
-    
-    winner_cnt = [3,7,10,13,16,19,22,24,25]
+        
     closed = 0
     hashed = {}
     plays.each do |play|      

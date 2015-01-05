@@ -8,20 +8,39 @@ class Game < ActiveRecord::Base
     unless game
       game = Game.new
       game.guid = WeixinHelper.guid
-      game.title = "一刀砍掉1500元，砍到0元MacBook就是你的啦，快召集朋友来帮你砍吧。"
-      game.banner = "http://42.121.128.45/mac.jpg"
       game.wxdata = {}
       game.args = {
         "origin_price"=>768800,
         "current_price"=>768800,
         "discount"=>0
-      }
-      game.rule = "本次活动的奖品MacBook Air，为大陆行货，全新未拆封，有发票，全国联保。"
+      }      
       game.winners = []
       game.start_at = Time.parse("2014-12-28 00:00:00 +0800")
       game.end_at = Time.parse("2015-01-08 23:59:59 +0800")
       game.status = "OPEN"
       game.stamp  = "KANJIA"          
+      game.save!
+    end
+    
+    game
+  end
+  
+  def self.kanjia_iphone
+    game = Game.find_by_stamp "KANJIA_IPHONE"
+    
+    unless game
+      game = Game.new
+      game.guid = WeixinHelper.guid      
+      game.args = {
+        "origin_price"=>688800,
+        "current_price"=>688800,
+        "discount"=>0
+      }
+      game.winners = []
+      game.start_at = Time.parse("2015-01-05 00:00:00 +0800")
+      game.end_at = Time.parse("2015-01-16 23:59:59 +0800")
+      game.status = "OPEN"
+      game.stamp  = "KANJIA_IPHONE"          
       game.save!
     end
     

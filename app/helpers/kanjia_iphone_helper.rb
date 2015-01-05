@@ -1,0 +1,2 @@
+module KanjiaIphoneHelper
+end
