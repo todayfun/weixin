@@ -5,7 +5,7 @@ class KanjiaIphoneController < ApplicationController
 
   def wxdata
     wxdata = {
-    :title=>"一刀砍掉700元，砍到0元iPhone6就是你的啦，快召集朋友来帮你砍吧。",
+    :title=>"一刀砍掉800元，砍到0元iPhone6就是你的啦，快召集朋友来帮你砍吧。",
     :img_url=>url_for(:controller=>"iphone.jpg"),
     :link=>url_for(:action=>"gameview",:game=>Game.kanjia_iphone.guid),
     :desc=>"免费召唤iPhone6，先自砍一刀，再邀请小伙伴们来帮你砍价，砍到0元，宝贝就是你的啦！比比谁的朋友多，呼朋唤友，齐心合力，免费大奖拿回家！还等什么？"
