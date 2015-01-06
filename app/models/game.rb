@@ -54,15 +54,16 @@ class Game < ActiveRecord::Base
       game = Game.new
       game.guid = WeixinHelper.guid
       game.args = {
-        "origin_price"=>768800,
-        "current_price"=>768800,
-        "discount"=>0
+        "红蛋"=>[50,"Paul Frank钱包"],
+        "黄蛋"=>[100, "COACH钱包"],
+        "蓝蛋"=>[300, "Kate Spade单肩包"],
+        "彩蛋"=>[500, "BURBERRY手提包"]
       }
       game.winners = []
       game.start_at = Time.now
       game.end_at = 1.week.from_now
       game.status = "OPEN"
-      game.stamp  = "CAIDAN"          
+      game.stamp  = "CAIDAN"
       game.save!
     end    
     game

@@ -5,10 +5,10 @@ class CaidanController < ApplicationController
 
   def wxdata
     wxdata = {
-    :title=>"幸福彩蛋大家砸，砸碎大奖拿回家，蛋蛋有奖，门槛低，拿奖易！",
-    :img_url=>url_for(:controller=>"mac.jpg"),
-    :link=>url_for(:action=>"gameview",:game=>Game.caidan.guid),
-    :desc=>"幸福彩蛋等你来砸，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！快召集你的蛋友来帮忙砸蛋吧！"
+    :@banner=>"幸福彩蛋大家砸，砸碎大奖拿回家，蛋蛋有奖，门槛低，拿奖易！",
+    :img_url=>url_for(:controller=>"zadan.jpg"),
+    :link=>url_for(:action=>"gameview"),
+    :desc=>"红蛋、黄蛋、蓝蛋、彩蛋，五彩缤纷的幸福彩蛋等你来砸，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！快召集你的蛋友来帮忙砸蛋吧！"
     }
     
     wxdata
@@ -33,16 +33,39 @@ class CaidanController < ApplicationController
 绿蛋——耐砸数：150次   奖品：红米手机Note增强版或1000元天使商城现金券
 =end    
   def gameview
-    @game = Game.find_by_guid(params[:game]) || Game.caidan
-    redirect_url = nil
+    @game = Game.caidan
+    @wxdata[:link] = url_for(:action=>"gameview")
     
-    label = %{抡圆了锤子先砸一下}
-    
-    title = ""
-    
-    links = %{分享到朋友圈}
-    
-    tair = %{活动规则 奖品展示 幸福的人}
+    @banner = nil
+    @btn_links = []
+    @tair_links = []
+    redirect_url = nil            
+    openid = _get_openid()    
+    if openid.nil?
+      redirect_url = WeixinHelper.with_auth(request.url)
+      @banner = "cant get openid"
+    else
+      if params[:from_weixin] == "zhongqi"
+        cookies[:from_weixin] = @game.guid        
+      end
+
+      unless _has_subscribed?
+        @banner = "gameview fail: 还没订阅公众号"
+        redirect_url = @@subscribe_url
+      else          
+        play = Play.where(:game_guid=>@game.guid,:owner=>openid).first
+        if play
+          @banner = "已经创建了游戏，直接进入"
+          redirect_url = url_for(:play=>play.guid,:action=>"playview")
+        else
+          @banner = _select_eggs
+          
+          @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋规则</div>}.html_safe,url_for(:action=>"rule"))            
+          @tair_links << view_context.link_to(%{<div class="kan-section tight">奖品展示</div>}.html_safe,url_for(:action=>"jiangpin"))
+          @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋排行</div>}.html_safe,url_for(:action=>"topn"))
+        end
+      end
+    end
     
     if redirect_url
       respond_to do |format|
@@ -56,11 +79,19 @@ class CaidanController < ApplicationController
   end
   
   
-  def launchgame
-    @game = Game.find_by_guid(params[:game]) || Game.caidan
+  def gamelaunch
+    @game = Game.caidan
     
-    notice = %{一个ID只能发起一次活动}
-    notcie = %{呜呜，好硬的蛋，一下子砸不碎，还需砸**下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
+    openid = _get_openid()
+    if openid.nil?
+      redirect_url = WeixinHelper.with_auth(request.url)
+      @banner = "cant get openid"
+    else
+      play = Play.launchgame(openid, @game)
+      flash[:notice] = _doplay(play,openid)
+      @banner = "game launched!"
+      redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
+    end
         
     respond_to do |format|
       format.html {redirect_to redirect_url}
@@ -72,19 +103,52 @@ class CaidanController < ApplicationController
 =end  
   def playview
     @play = Play.find_by_guid(params[:play])
-    @game = Game.find_by_guid(@play.game_guid)
+    @game = Game.caidan
+    @wxdata = wxdata
+    @wxdata[:link] = url_for(:play=>@play.guid,:action=>"playview")
     
-    # by friend
-    label = %{帮TA砸一下|你已经帮他砸过啦}
-    title = %{已咋xx次，还差24次就砸碎啦，加油！}
-    links = %{找朋友帮TA砸 我也要咋幸福彩蛋免费拿大奖}    
-    tair = %{活动规则 奖品展示 幸福的人}
-    
-    # by owner
-    label = %{自己砸一下|你已经砸过了}
-    title = %{已咋xx次，还差24次就砸碎啦，加油！}
-    links = %{找朋友帮我砸 我的砸蛋记录}
-    tair = %{活动规则 奖品展示 幸福的人}
+    @banner = nil
+    @btn_links = []
+    @tair_links = []
+    openid = _get_openid()
+    redirect_url = nil
+    if openid.nil?
+      redirect_url = WeixinHelper.with_auth(request.url)
+      @banner = "cant get openid"
+    else
+      if @play
+        if openid == @play.owner
+          if _has_played?(@play,openid)            
+            @banner = _show_egg(@play,"您已经砸过啦")
+            
+            #@btn_links = %{找朋友帮我砸 我的砸蛋记录}
+            link = view_context.link_to(%{<div class="btn btn-sm btn-danger">找朋友帮我砸</div>}.html_safe,"javascript:void()",:onclick=>"showShare();")            
+            link.concat view_context.link_to(%{<div class="btn btn-sm btn-danger">我的砸蛋记录</div>}.html_safe, url_for(:action=>"play_history",:play=>@play.guid))            
+            @btn_links << link
+          else            
+            @banner = _show_egg(@play,view_context.link_to(%{<div class="btn btn-lg btn-danger">自己砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
+          end                
+        else          
+          if _has_played?(@play,openid)
+            @banner =  _show_egg(@play,"您已经帮TA砸过啦")
+            
+            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))
+            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">找朋友帮TA砍</div>}.html_safe,"#",:onclick=>"showShare();")
+          else
+            @banner = _show_egg(@play,view_context.link_to(%{<div class="btn btn-lg btn-danger">帮TA砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
+            @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))                     
+          end
+        end
+        
+        # @tair_links = %{活动规则 奖品展示 幸福的人}
+        @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋规则</div>}.html_safe,url_for(:action=>"rule"))            
+        @tair_links << view_context.link_to(%{<div class="kan-section tight">奖品展示</div>}.html_safe,url_for(:action=>"jiangpin"))
+        @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋排行</div>}.html_safe,url_for(:action=>"topn"))
+      else
+        @banner = "playview fail: cant found play"
+        redirect_url = url_for(:action=>"gameview")
+      end
+    end
     
     if redirect_url
       respond_to do |format|
@@ -105,28 +169,40 @@ class CaidanController < ApplicationController
 =end  
   def doplay
     @play = Play.find_by_guid(params[:play])
-    @game = Game.find_by_guid(@play.game_guid)
+    @game = Game.caidan
     
-    # by owner
-    notice = %{呜呜，好硬的蛋，一下子砸不碎，还需砸**下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
-    
-    # by friend
-    notice = %{感谢恩人赏了一锤，离免费大奖又近了一步，快去留个言邀功吧，点击确定你也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！}
-    
-    notice = %{你已经帮TA砸过一次啦，不能再砸啦！邀请其他小伙伴来帮忙砸吧。心动不如行动，快来参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！}
-    
-    
+    openid = _get_openid()
+    redirect_url = nil
+    if openid.nil?
+      redirect_url = WeixinHelper.with_auth(request.url)
+      @banner = "cant get openid"
+    else
+      if @play
+        if _has_subscribed?          
+          flash[:notice] = _doplay(@play,openid)
+          cookies[:notice]=true          
+          redirect_url = url_for(:play=>@play.guid,:cmd=>"playview")
+        else
+          @label = "doplay fail: 还没订阅公众号"
+          cookies[:doplay_url] = request.url
+          redirect_url = @@subscribe_url
+        end
+      else
+        @banner = "doplay fail: cant found play"
+        redirect_url = url_for(:action=>"gameview")
+      end
+    end
     
     respond_to do |format|
       format.html {redirect_to redirect_url}
     end
   end
     
-  def dokanjia
-    game = Game.caidan
-    redirect_url = url_for(:action=>"gameview", :game=>game.guid)
+  def dozadan
+    @game = Game.caidan
+    redirect_url = url_for(:action=>"gameview", :game=>@game.guid)
     if params[:from_weixin] == "zhongqi"
-      cookies[:from_weixin] = game.guid
+      cookies[:from_weixin] = @game.guid
     end
     
     if !cookies[:doplay_url].blank?
@@ -140,11 +216,10 @@ class CaidanController < ApplicationController
   
   def playhistory
     @play = Play.find_by_guid params[:play]
-    @game = Game.find_by_guid(@play.game_guid)
-    
-    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
+    @game = Game.caidan    
+    @game_url = request.referfer || url_for(:action=>"gameview")
     @wxdata = wxdata()
-    @wxdata[:link] = @game_url
+    @wxdata[:link] = url_for(:action=>"gameview")
     
     respond_to do |format|
       format.html
@@ -152,41 +227,119 @@ class CaidanController < ApplicationController
   end
   
   def rule
-    @game = Game.find_by_guid params[:game] || Game.caidan
-    
-    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
+    @game = Game.caidan    
+    @game_url = request.referfer || url_for(:action=>"gameview")
     @wxdata = wxdata()
-    @wxdata[:link] = @game_url
+    @wxdata[:link] = url_for(:action=>"gameview")
     
     respond_to do |format|
       format.html
     end
   end
-  
+    
   def topn
-    @game = Game.find_by_guid params[:game] || Game.caidan
-    
-    @game_url = url_for(:action=>"gameview",:game=>@game.guid)
+    @game = Game.caidan    
+    @game_url = request.referfer || url_for(:action=>"gameview")
     @wxdata = wxdata()
-    @wxdata[:link] = @game_url
+    @wxdata[:link] = url_for(:action=>"gameview")
     
     respond_to do |format|
       format.html
     end
   end
   
-  def has_played?(play,openid)   
-    friends = play.friends    
-    key = "#{openid},#{Date.today.to_s}"
-    friends.include?(key)
-    #false
+  def jiangpin
+    @game = Game.caidan    
+    @game_url = request.referfer || url_for(:action=>"gameview")
+    @wxdata = wxdata()
+    @wxdata[:link] = url_for(:action=>"gameview")
+    
+    respond_to do |format|
+      format.html
+    end
   end
   
-  def has_subscribed?
+  def _has_subscribed?
     if !cookies[:from_weixin].blank?
       true
     else
       false
     end    
+  end
+  
+  def _select_eggs
+    html = view_context.form_tag "/caidan/gamelaunch" do
+      inner = %{
+      <div class="eggs">选择菜单</div>
+      <div class="jiangping">xx Egg：砸xx次，奖品：xx</div>
+      <div class="btn btn-lg">请谨慎选择蛋的颜色，你只有一次发起砸蛋活动的权利哦，看看你能召集多少蛋友来帮你砸蛋，再合理选择蛋的颜色哦！</div> 
+      <input class="btn btn-lg btn-danger" type="submit" value="抡起锤子砸一下"/>
+      }
+      
+      inner.html_safe
+    end
+    
+    html
+  end
+  
+  def _show_egg(play,label)
+    %{
+    <div>egg</div>
+    <div>已咋xx次，还差24次就砸碎啦，加油！</div>
+    #{label}
+    }
+  end
+  
+  def _get_openid
+    openid = cookies[:weixin_openid]    
+    if openid.nil?
+      openid = WeixinHelper.query_openid(params[:code])
+      cookies[:weixin_openid] = openid
+      Rails.logger.info("Get openid from weixin")
+    end
+    
+    openid
+  end
+  
+  def _has_played?(play,openid)   
+    friends = play.friends    
+    key = "#{openid}"
+    friends.include?(key)
+    #false
+  end
+  
+=begin
+1、一个ID在活动期间，帮不同人砸蛋的次数，累计不能超过3次。
+2、一次活动中，比如，A发起的砸蛋活动，只能帮A砸一次。
+3、同一个ID，只能发起一次活动，只能自己砸一次。
+4、如果超过了砸蛋次数，则弹出窗口提示：“对不起，你的3次砸蛋权已经用完啦，换个手机和微信再来参加吧！”
+=end
+  def _doplay(play,openid)
+    notice = {:type=>"good",:msg=>""}
+    
+    if _has_played?(play,openid)
+      if openid == play.owner
+        notice[:msg] = "您已经帮TA砸过一次啦，不能再砸啦！邀请其他小伙伴来帮忙砸吧。您也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！"
+      else
+        notice[:msg] = "您已经砸过一次啦，不能再砸啦！邀请其他小伙伴来帮忙砸吧。蛋砸碎了蛋里的宝贝就是你的啦！"
+      end
+      
+      notice[:type] = "warning"
+    elsif play.status == "CLOSED"
+      notice[:msg] = "本次活动已经结束啦，看看其他活动!"
+      notice[:type] = "warning"
+    else
+      
+      
+      if openid == play.owner
+        notice[:msg] = %{呜呜，好硬的蛋，一下子砸不碎，还需砸**下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
+        notice[:type] = "good"
+      else
+        notice[:msg] = %{感谢恩人赏了一锤，离免费大奖又近了一步，快去留个言邀功吧。您也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！}
+        notice[:type] = "good"
+      end
+    end
+    
+    notice
   end
 end
