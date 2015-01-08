@@ -78,7 +78,6 @@ class CaidanController < ApplicationController
     end
   end
   
-  
   def gamelaunch
     @game = Game.caidan
     
@@ -87,10 +86,20 @@ class CaidanController < ApplicationController
       redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
-      play = Play.launchgame(openid, @game)
-      flash[:notice] = _doplay(play,openid)
-      @banner = "game launched!"
-      redirect_url = url_for(:play=>play.guid,:cmd=>"playview")
+      egg_name = params[:egg_name]
+      args = @game.caidan.args
+      if args[egg_name]
+        play = Play.launchgame(openid, @game) do |p|
+          p.args = {egg_name=>args[egg_name],"selected"=>egg_name}
+        end
+
+        flash[:notice] = _doplay(play,openid)
+        @banner = "game launched!"
+        redirect_url = url_for(:play=>play.guid,:action=>"playview")
+      else
+        flash[:notice] = "egg #{egg_name} not exists"
+        redirect_url = url_for(:action=>"gameview")
+      end
     end
         
     respond_to do |format|
@@ -181,7 +190,7 @@ class CaidanController < ApplicationController
         if _has_subscribed?          
           flash[:notice] = _doplay(@play,openid)
           cookies[:notice]=true          
-          redirect_url = url_for(:play=>@play.guid,:cmd=>"playview")
+          redirect_url = url_for(:play=>@play.guid,:action=>"playview")
         else
           @label = "doplay fail: 还没订阅公众号"
           cookies[:doplay_url] = request.url
@@ -283,9 +292,14 @@ class CaidanController < ApplicationController
   end
   
   def _show_egg(play,label)
+    args = play.args
+    egg = args[args["selected"]]
+    cnt = egg[1] - play.score
+    
+    # egg: ["红蛋",50,"Paul Frank钱包"]
     %{
-    <div>egg</div>
-    <div>已咋xx次，还差24次就砸碎啦，加油！</div>
+    <div>#{egg[0]}</div>
+    <div>已砸#{cnt}次，还差#{play.score}次就碎啦，加油！</div>
     #{label}
     }
   end
@@ -329,17 +343,43 @@ class CaidanController < ApplicationController
       notice[:msg] = "本次活动已经结束啦，看看其他活动!"
       notice[:type] = "warning"
     else
+      args = play.args
+      friends = play.friends
+      friend_plays = play.friend_plays
       
-      
-      if openid == play.owner
-        notice[:msg] = %{呜呜，好硬的蛋，一下子砸不碎，还需砸**下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
-        notice[:type] = "good"
-      else
-        notice[:msg] = %{感谢恩人赏了一锤，离免费大奖又近了一步，快去留个言邀功吧。您也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！}
-        notice[:type] = "good"
+      # egg: ["红蛋",50,"Paul Frank钱包"]
+      if friends.empty?
+        egg = args[args["selected"]]
+        play.score = egg[1]
       end
+      
+      play.score -= 1
+      friends << openid
+      friend_plays << [openid,play.score,Time.now]
+      play.status = "CLOSED" if play.score == 0
+      play.friends = friends
+      play.friend_plays = friend_plays
+      play.save!
+      
+      if play.score == 0        
+        if openid == play.owner        
+          notice[:msg] = %{恭喜您，已经砸开了#{egg[0]}，快去领取大奖吧！}
+          notice[:type] = "good"
+        else
+          notice[:msg] = %{太厉害了，您帮TA砸开了#{egg[0]}，快叫TA去领取大奖吧。您也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！}
+          notice[:type] = "good"
+        end
+      else
+        if openid == play.owner        
+          notice[:msg] = %{呜呜，好硬的蛋，一下子砸不碎，还需砸#{play.score}下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
+          notice[:type] = "good"
+        else
+          notice[:msg] = %{感谢恩人赏了一锤，离免费大奖又近了一步，快去留个言邀功吧。您也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！}
+          notice[:type] = "good"
+        end
+      end                  
     end
     
     notice
-  end
+  end    
 end
