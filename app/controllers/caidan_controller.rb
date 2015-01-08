@@ -5,7 +5,7 @@ class CaidanController < ApplicationController
 
   def wxdata
     wxdata = {
-    :@banner=>"幸福彩蛋大家砸，砸碎大奖拿回家，蛋蛋有奖，门槛低，拿奖易！",
+    :title=>"幸福彩蛋大家砸，砸碎大奖拿回家，蛋蛋有奖，门槛低，拿奖易！",
     :img_url=>url_for(:controller=>"zadan.jpg"),
     :link=>url_for(:action=>"gameview"),
     :desc=>"红蛋、黄蛋、蓝蛋、彩蛋，五彩缤纷的幸福彩蛋等你来砸，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！快召集你的蛋友来帮忙砸蛋吧！"
@@ -34,6 +34,7 @@ class CaidanController < ApplicationController
 =end    
   def gameview
     @game = Game.caidan
+    @wxdata = wxdata
     @wxdata[:link] = url_for(:action=>"gameview")
     
     @banner = nil
@@ -86,11 +87,15 @@ class CaidanController < ApplicationController
       redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
-      egg_name = params[:egg_name]
-      args = @game.caidan.args
+      egg_name = params[:egg_name]||"egg_red"
+      args = @game.args
       if args[egg_name]
         play = Play.launchgame(openid, @game) do |p|
-          p.args = {egg_name=>args[egg_name],"selected"=>egg_name}
+          egg = args[egg_name]
+          # state: egg_name,done_cnt, todo_cnt
+          args = {egg_name=>egg,"selected"=>egg_name,"state"=>[egg[0],0,egg[1]]}          
+          p.args = args
+          p.score = egg[1]
         end
 
         flash[:notice] = _doplay(play,openid)
@@ -132,7 +137,7 @@ class CaidanController < ApplicationController
             
             #@btn_links = %{找朋友帮我砸 我的砸蛋记录}
             link = view_context.link_to(%{<div class="btn btn-sm btn-danger">找朋友帮我砸</div>}.html_safe,"javascript:void()",:onclick=>"showShare();")            
-            link.concat view_context.link_to(%{<div class="btn btn-sm btn-danger">我的砸蛋记录</div>}.html_safe, url_for(:action=>"play_history",:play=>@play.guid))            
+            link.concat view_context.link_to(%{<div class="btn btn-sm btn-danger">我的砸蛋记录</div>}.html_safe, url_for(:action=>"playhistory",:play=>@play.guid))            
             @btn_links << link
           else            
             @banner = _show_egg(@play,view_context.link_to(%{<div class="btn btn-lg btn-danger">自己砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
@@ -226,9 +231,12 @@ class CaidanController < ApplicationController
   def playhistory
     @play = Play.find_by_guid params[:play]
     @game = Game.caidan    
-    @game_url = request.referfer || url_for(:action=>"gameview")
+    @game_url = request.referer || url_for(:action=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = url_for(:action=>"gameview")
+    
+    state = @play.args["state"]
+    @label = %{已砸#{state[1]}次，还差#{state[2]}次就碎啦，加油！}
     
     respond_to do |format|
       format.html
@@ -237,7 +245,7 @@ class CaidanController < ApplicationController
   
   def rule
     @game = Game.caidan    
-    @game_url = request.referfer || url_for(:action=>"gameview")
+    @game_url = request.referer || url_for(:action=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = url_for(:action=>"gameview")
     
@@ -248,9 +256,14 @@ class CaidanController < ApplicationController
     
   def topn
     @game = Game.caidan    
-    @game_url = request.referfer || url_for(:action=>"gameview")
+    @game_url = request.referer || url_for(:action=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = url_for(:action=>"gameview")
+    plays = Play.where(:game_guid=>@game.guid).order("score asc")
+    @topn = plays.map do |p|      
+      state = p.args["state"] # egg_name,done_cnt, todo_cnt
+      [p.owner, state[0],state[1], state[2]]
+    end
     
     respond_to do |format|
       format.html
@@ -259,7 +272,7 @@ class CaidanController < ApplicationController
   
   def jiangpin
     @game = Game.caidan    
-    @game_url = request.referfer || url_for(:action=>"gameview")
+    @game_url = request.referer || url_for(:action=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = url_for(:action=>"gameview")
     
@@ -293,18 +306,18 @@ class CaidanController < ApplicationController
   
   def _show_egg(play,label)
     args = play.args
-    egg = args[args["selected"]]
-    cnt = egg[1] - play.score
+    state = args["state"]
     
     # egg: ["红蛋",50,"Paul Frank钱包"]
     %{
-    <div>#{egg[0]}</div>
-    <div>已砸#{cnt}次，还差#{play.score}次就碎啦，加油！</div>
+    <div>#{state[0]}</div>
+    <div>已砸#{state[1]}次，还差#{state[2]}次就碎啦，加油！</div>
     #{label}
     }
   end
   
   def _get_openid
+    return "boyi"
     openid = cookies[:weixin_openid]    
     if openid.nil?
       openid = WeixinHelper.query_openid(params[:code])
@@ -354,14 +367,17 @@ class CaidanController < ApplicationController
       end
       
       play.score -= 1
+      todo_cnt = play.score.to_i      
+      args["state"] = [egg[0],(egg[1]-todo_cnt),todo_cnt] # egg_name,done_cnt, todo_cnt
       friends << openid
-      friend_plays << [openid,play.score,Time.now]
-      play.status = "CLOSED" if play.score == 0
+      friend_plays << [openid,todo_cnt,Time.now]
+      play.status = "CLOSED" if todo_cnt == 0
       play.friends = friends
       play.friend_plays = friend_plays
+      play.args = args
       play.save!
       
-      if play.score == 0        
+      if todo_cnt == 0        
         if openid == play.owner        
           notice[:msg] = %{恭喜您，已经砸开了#{egg[0]}，快去领取大奖吧！}
           notice[:type] = "good"
@@ -371,7 +387,7 @@ class CaidanController < ApplicationController
         end
       else
         if openid == play.owner        
-          notice[:msg] = %{呜呜，好硬的蛋，一下子砸不碎，还需砸#{play.score}下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
+          notice[:msg] = %{呜呜，好硬的蛋，一下子砸不碎，还需砸#{todo_cnt}下才能砸碎哦，快邀请你的蛋友来帮你砸蛋吧，蛋砸碎了蛋里的宝贝就是你的啦！}
           notice[:type] = "good"
         else
           notice[:msg] = %{感谢恩人赏了一锤，离免费大奖又近了一步，快去留个言邀功吧。您也可以参加“幸福彩蛋大家砸，砸碎大奖拿回家”活动，蛋蛋有奖！}

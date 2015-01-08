@@ -11,16 +11,18 @@
         <thead>
             <tr>
                 <th>微信号</th>                                        
-                <th>砍掉价格</th>
-                <th>砍后价格</th>
+                <th>砸蛋</th>
+                <th>还需</th>
+                <th>已砸</th>
             </tr>
         </thead>
         <tbody>
           <% @topn.each_with_index do |r,idx| %>
             <tr>
-              <td>#<%="#{idx+1} #{r[0]}"%></td>                  
-              <td><del style="font-size: 15px"><%=r[2]%></del></td>                  
-              <td><%=r[3]%></td>
+              <td>#<%="#{idx+1} #{r[0]}"%></td>
+              <td><%=r[1]%></td>
+              <td><%=r[3]%>锤</td>              
+              <td><del style="font-size: 15px"><%=r[2]%>锤</del></td>
             </tr>
           <%end%>
         </tbody>
