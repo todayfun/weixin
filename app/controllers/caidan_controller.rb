@@ -87,7 +87,7 @@ class CaidanController < ApplicationController
       redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
-      egg_name = params[:egg_name]||"egg_red"
+      egg_name = params[:caidan]||"egg_red"
       args = @game.args
       if args[egg_name]
         play = Play.launchgame(openid, @game) do |p|
@@ -133,7 +133,7 @@ class CaidanController < ApplicationController
       if @play
         if openid == @play.owner
           if _has_played?(@play,openid)            
-            @banner = _show_egg(@play,"您已经砸过啦")
+            @banner = _show_egg(@play,%{<div class="btn btn-lg btn-danger">您已经砸过啦</div>})
             
             #@btn_links = %{找朋友帮我砸 我的砸蛋记录}
             link = view_context.link_to(%{<div class="btn btn-sm btn-danger">找朋友帮我砸</div>}.html_safe,"javascript:void()",:onclick=>"showShare();")            
@@ -144,7 +144,7 @@ class CaidanController < ApplicationController
           end                
         else          
           if _has_played?(@play,openid)
-            @banner =  _show_egg(@play,"您已经帮TA砸过啦")
+            @banner =  _show_egg(@play,%{<div class="btn btn-lg btn-danger">您已经帮TA砸过啦</div>})
             
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">找朋友帮TA砍</div>}.html_safe,"#",:onclick=>"showShare();")
@@ -290,12 +290,30 @@ class CaidanController < ApplicationController
   end
   
   def _select_eggs
+    game = Game.caidan
+    eggs = game.args
+    
+    eggs_html = ""
+    eggs.keys.sort.each do |egg_name|
+      egg = eggs[egg_name]
+      eggs_html.concat %{
+        <li>
+            <label>
+              <img class="inlineblock" src="/#{egg_name}.png" alt="">
+              <input class="inlineblock" type="radio" value="#{egg_name}" name="caidan" data-egg="需砸：#{egg[1]}次&nbsp;&nbsp;&nbsp;&nbsp;奖品：#{egg[2]}">
+            </label>
+        </li>
+      }
+    end
+    
     html = view_context.form_tag "/caidan/gamelaunch" do
       inner = %{
-      <div class="eggs">选择菜单</div>
-      <div class="jiangping">xx Egg：砸xx次，奖品：xx</div>
-      <div class="btn btn-lg">请谨慎选择蛋的颜色，你只有一次发起砸蛋活动的权利哦，看看你能召集多少蛋友来帮你砸蛋，再合理选择蛋的颜色哦！</div> 
-      <input class="btn btn-lg btn-danger" type="submit" value="抡起锤子砸一下"/>
+      <ul class="caidan">
+      #{eggs_html}
+      </ul>
+      <div class="red center">需砸：100次&nbsp;&nbsp;&nbsp;&nbsp;奖品：COACH钱包</div>
+      <div class="kan-section">请谨慎选择蛋的颜色，你只有一次发起砸蛋活动的权利哦，看看你能召集多少蛋友来帮你砸蛋，再合理选择蛋的颜色哦！</div>
+      <div class="kan-section"><button type="submit" class="btn btn-lg btn-danger">抡起锤子砸一下</button></div>
       }
       
       inner.html_safe
@@ -307,17 +325,21 @@ class CaidanController < ApplicationController
   def _show_egg(play,label)
     args = play.args
     state = args["state"]
+    egg_name = args["selected"]
     
     # egg: ["红蛋",50,"Paul Frank钱包"]
     %{
-    <div>#{state[0]}</div>
-    <div>已砸#{state[1]}次，还差#{state[2]}次就碎啦，加油！</div>
+    <div class="kan-section center">
+        <img class="inlineblock" src="/#{egg_name}.png" alt="">
+    </div>
+    <div class="center red">已砸#{state[1]}次，还需砸#{state[2]}次就碎啦，加油！</div>
+    <br/>
     #{label}
     }
   end
   
   def _get_openid
-    return "boyi"
+    return "boyii"
     openid = cookies[:weixin_openid]    
     if openid.nil?
       openid = WeixinHelper.query_openid(params[:code])
