@@ -312,7 +312,7 @@ class CaidanController < ApplicationController
       #{eggs_html}
       </ul>
       <div class="red center" id="jiangpin"></div>
-      <div class="kan-section">请谨慎选择蛋的颜色，你只有一次发起砸蛋活动的权利哦，看看你能召集多少蛋友来帮你砸蛋，再合理选择蛋的颜色哦！</div>
+      <div class="kan-section" style="z-index:-1">请谨慎选择蛋的颜色，你只有一次发起砸蛋活动的权利哦，看看你能召集多少蛋友来帮你砸蛋，再合理选择蛋的颜色哦！</div>
       <div class="kan-section"><button type="submit" class="btn btn-lg btn-danger">抡起锤子砸一下</button></div>
       }
       
