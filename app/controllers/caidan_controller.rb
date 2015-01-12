@@ -298,9 +298,9 @@ class CaidanController < ApplicationController
       egg = eggs[egg_name]
       eggs_html.concat %{
         <li>
-            <label>
+            <label onclick="document.getElementById('jiangpin').innerHTML = '需砸：#{egg[1]}次&nbsp;&nbsp;&nbsp;&nbsp;奖品：#{egg[2]}';">
               <img class="inlineblock" src="/#{egg_name}.png" alt="">
-              <input class="inlineblock" type="radio" value="#{egg_name}" name="caidan" data-egg="需砸：#{egg[1]}次&nbsp;&nbsp;&nbsp;&nbsp;奖品：#{egg[2]}">
+              <input class="inlineblock" type="radio" value="#{egg_name}" name="caidan">
             </label>
         </li>
       }
@@ -311,7 +311,7 @@ class CaidanController < ApplicationController
       <ul class="caidan">
       #{eggs_html}
       </ul>
-      <div class="red center">需砸：100次&nbsp;&nbsp;&nbsp;&nbsp;奖品：COACH钱包</div>
+      <div class="red center" id="jiangpin"></div>
       <div class="kan-section">请谨慎选择蛋的颜色，你只有一次发起砸蛋活动的权利哦，看看你能召集多少蛋友来帮你砸蛋，再合理选择蛋的颜色哦！</div>
       <div class="kan-section"><button type="submit" class="btn btn-lg btn-danger">抡起锤子砸一下</button></div>
       }
