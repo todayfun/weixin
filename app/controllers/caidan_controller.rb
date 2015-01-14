@@ -43,7 +43,7 @@ class CaidanController < ApplicationController
     redirect_url = nil            
     openid = _get_openid()    
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth(request.url)
+      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
       @banner = "cant get openid"
     else
       if params[:from_weixin] == "zhongqi"
@@ -84,7 +84,7 @@ class CaidanController < ApplicationController
     
     openid = _get_openid()
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth(request.url)
+      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
       @banner = "cant get openid"
     else
       egg_name = params[:caidan]||"egg_red"
@@ -127,7 +127,7 @@ class CaidanController < ApplicationController
     openid = _get_openid()
     redirect_url = nil
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth(request.url)
+      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
       @banner = "cant get openid"
     else
       if @play
@@ -188,7 +188,7 @@ class CaidanController < ApplicationController
     openid = _get_openid()
     redirect_url = nil
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth(request.url)
+      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
       @banner = "cant get openid"
     else
       if @play
@@ -341,9 +341,12 @@ class CaidanController < ApplicationController
   def _get_openid
     return "boyii"
     openid = cookies[:weixin_openid]    
-    if openid.nil?
-      openid = WeixinHelper.query_openid(params[:code])
-      cookies[:weixin_openid] = openid
+    if openid.nil? && params[:code]
+      userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
+      Fans.save_by_userinfo userinfo
+      openid = userinfo['openid']
+      
+      cookies[:weixin_openid] = { :value => openid, :expires => 30.minitue.from_now }
       Rails.logger.info("Get openid from weixin")
     end
     

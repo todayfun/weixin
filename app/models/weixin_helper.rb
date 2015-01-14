@@ -60,6 +60,22 @@ class WeixinHelper
     json["openid"]
   end
   
+  def self.query_userinfo_by_auth(code)
+    return nil if code.blank?
+    
+    url = %{https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{APPID}&secret=#{SECRET}&code=#{code}&grant_type=authorization_code}    
+    json = https_get(url)
+    
+    Rails.logger.info("Weixin access_token #{json.to_s}")
+    json["openid"]
+    
+    url = %{https://api.weixin.qq.com/sns/userinfo?access_token=#{json['access_token']}&openid=#{json['openid']}&lang=zh_CN}
+    userinfo = https_get(url)
+    Rails.logger.info("Weixin userinfo #{userinfo.to_s}")
+    
+    userinfo
+  end
+  
   def self.echo_game(to,from,url)
     content = "kanjia of iphone6 \n <a href='#{url}'>wo qu qiang </a>"
     msg = text_msg(to,from,content)

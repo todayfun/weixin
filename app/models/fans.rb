@@ -18,4 +18,19 @@ class Fans < ActiveRecord::Base
     
     fans
   end
+  
+  def self.save_by_userinfo(userinfo)
+    openid = userinfo["openid"]
+    return if openid.blank?
+    
+    fans = Fans.find_by_openid openid
+    fans ||= Fans.new
+    fans.openid = openid
+    fans.nickname = userinfo["nickname"]
+    fans.city = userinfo["city"]
+    fans.sex = userinfo["sex"]    
+    fans.save!
+    
+    fans
+  end
 end
