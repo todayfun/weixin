@@ -353,7 +353,7 @@ class CaidanController < ApplicationController
       Fans.save_by_userinfo userinfo
       openid = userinfo['nickname']
       
-      cookies[:weixin_openid] = { :value => openid, :expires => 30.minitue.from_now }
+      cookies[:weixin_openid] = { :value => openid, :expires => 30.minutes.from_now }
       Rails.logger.info("Get openid from weixin")
     end
     
