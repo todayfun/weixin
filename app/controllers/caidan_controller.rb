@@ -118,6 +118,11 @@ class CaidanController < ApplicationController
 =end  
   def playview
     @play = Play.find_by_guid(params[:play])
+    redirect_url = nil
+    if @play.nil?
+      redirect_url = url_for(:action=>"gameview")
+    else
+    
     @game = Game.caidan
     @wxdata = wxdata
     @wxdata[:link] = url_for(:play=>@play.guid,:action=>"playview")
@@ -125,8 +130,7 @@ class CaidanController < ApplicationController
     @banner = nil
     @btn_links = []
     @tair_links = []
-    openid = _get_openid()
-    redirect_url = nil
+    openid = _get_openid()    
     if openid.nil?
       redirect_url = WeixinHelper.with_auth_userinfo(request.url)
       @banner = "cant get openid"
@@ -163,6 +167,7 @@ class CaidanController < ApplicationController
         @banner = "playview fail: cant found play"
         redirect_url = url_for(:action=>"gameview")
       end
+    end
     end
     
     if redirect_url
@@ -239,6 +244,11 @@ class CaidanController < ApplicationController
     state = @play.args["state"]
     @label = %{已砸#{state[1]}次，还差#{state[2]}次就碎啦，加油！}
     
+    @nicknames = {}
+    Fans.where(:openid=>@play.friends).each do |f|
+      @nicknames[f.openid] = f.nickname
+    end
+    
     respond_to do |format|
       format.html
     end
@@ -263,10 +273,10 @@ class CaidanController < ApplicationController
     t = Time.now.utc
     @cnt = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").order("score asc").count
     
-    plays = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").order("score asc").limit(50)
+    plays = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").joins("join fans on fans.openid=plays.owner").select("plays.*,fans.nickname").order("score asc").limit(50)
     @topn = plays.map do |p|      
       state = p.args["state"] # egg_name,done_cnt, todo_cnt
-      name = p.owner.dup
+      name = p.nickname
       next if name.length < 4
       name[1]="."
       name[2]="."      
@@ -348,7 +358,8 @@ class CaidanController < ApplicationController
   
   def _get_openid
     #return "boyii2"
-    openid = cookies[:weixin_openid]    
+    openid = cookies[:weixin_openid]
+    openid = nil
     if openid.nil? && params[:code]
       userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
       Fans.save_by_userinfo userinfo

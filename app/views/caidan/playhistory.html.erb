@@ -21,7 +21,7 @@
           <% @play.friend_plays.reverse_each do |r| %>
             <tr>
               <td><%= Time.parse(r[2]).localtime.to_s(:db) %></td>
-              <td><%=r[0]%></td>
+              <td><%= @nicknames[r[0]] || r[0] %></td>
               <td><%=r[1]%></td>
             </tr>
           <%end%>
