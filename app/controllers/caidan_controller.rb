@@ -99,6 +99,7 @@ class CaidanController < ApplicationController
         end
 
         flash[:notice] = _doplay(play,openid)
+        cookies[:notice]=true
         @banner = "game launched!"
         redirect_url = url_for(:play=>play.guid,:action=>"playview")
       else
@@ -268,8 +269,8 @@ class CaidanController < ApplicationController
       name = p.owner.dup
       next if name.length < 4
       name[1]="."
-      name[2]="."
-      [p.owner, state[0],state[1], state[2]]
+      name[2]="."      
+      [name, state[0],state[1], state[2]]
     end
     
     respond_to do |format|
@@ -346,7 +347,7 @@ class CaidanController < ApplicationController
   end
   
   def _get_openid
-    #return "boyii"
+    return "boyii2"
     openid = cookies[:weixin_openid]    
     if openid.nil? && params[:code]
       userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])

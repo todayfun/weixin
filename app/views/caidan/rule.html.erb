@@ -1,6 +1,6 @@
 <div id="times_container" class="kan-clock list">活动倒计时：<span id="times_day"> </span>天 <span id="times_hour"> </span>小时 <span id="times_minute"> </span>分 <span id="second"> </span>秒</div>
 <div class="kan-content">
-  <h3 class="red">活动时间：<%=@game.start_at.to_date.to_s%>  至  <%=@game.end_at.to_date.to_s%></h3>
+  <h3 class="red">活动时间：<%=@game.start_at.localtime.to_date.to_s%>  至  <%=@game.end_at.localtime.to_date.to_s%></h3>
   <p class="red">活动规则：</p>
   <ol>
 （1）红蛋、黄蛋、蓝蛋、彩蛋，蛋蛋有奖，砸碎每种蛋需要的次数不同，蛋里的奖品也不同，蛋砸碎了蛋里的宝贝就是你的啦。
