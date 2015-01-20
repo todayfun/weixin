@@ -347,12 +347,12 @@ class CaidanController < ApplicationController
   end
   
   def _get_openid
-    return "boyii2"
+    #return "boyii2"
     openid = cookies[:weixin_openid]    
     if openid.nil? && params[:code]
       userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
       Fans.save_by_userinfo userinfo
-      openid = userinfo['nickname']
+      openid = userinfo['openid']
       
       cookies[:weixin_openid] = { :value => openid, :expires => 30.minutes.from_now }
       Rails.logger.info("Get openid from weixin")
