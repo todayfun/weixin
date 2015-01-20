@@ -259,9 +259,16 @@ class CaidanController < ApplicationController
     @game_url = request.referer || url_for(:action=>"gameview")
     @wxdata = wxdata()
     @wxdata[:link] = url_for(:action=>"gameview")
-    plays = Play.where(:game_guid=>@game.guid).order("score asc")
+    t = Time.now.utc
+    @cnt = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").order("score asc").count
+    
+    plays = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").order("score asc").limit(50)
     @topn = plays.map do |p|      
       state = p.args["state"] # egg_name,done_cnt, todo_cnt
+      name = p.owner.dup
+      next if name.length < 4
+      name[1]="."
+      name[2]="."
       [p.owner, state[0],state[1], state[2]]
     end
     
@@ -339,12 +346,12 @@ class CaidanController < ApplicationController
   end
   
   def _get_openid
-    return "boyii"
+    #return "boyii"
     openid = cookies[:weixin_openid]    
     if openid.nil? && params[:code]
       userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
       Fans.save_by_userinfo userinfo
-      openid = userinfo['openid']
+      openid = userinfo['nickname']
       
       cookies[:weixin_openid] = { :value => openid, :expires => 30.minitue.from_now }
       Rails.logger.info("Get openid from weixin")

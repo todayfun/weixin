@@ -54,14 +54,14 @@ class Game < ActiveRecord::Base
       game = Game.new
       game.guid = WeixinHelper.guid
       game.args = {
-        "egg1_red"=>["红蛋",50,"Paul Frank钱包"],
-        "egg2_yellow"=>["黄蛋",100, "COACH钱包"],
-        "egg3_blue"=>["蓝蛋",300, "Kate Spade单肩包"],
-        "egg4_color"=>["彩蛋",500, "BURBERRY手提包"]
+        "egg1_red"=>["红蛋",38,"手机刷卡器"],
+        "egg2_yellow"=>["黄蛋",98, "COACH钱包"],
+        "egg3_blue"=>["蓝蛋",258, "MK笑脸包"],
+        "egg4_color"=>["彩蛋",398, "BURBERRY手提包"]
       }
       game.winners = []
-      game.start_at = Time.now
-      game.end_at = 1.week.from_now
+      game.start_at = Time.parse("2015-01-23 00:00:00 +0800")
+      game.end_at = Time.parse("2015-02-06 00:00:00 +0800")
       game.status = "OPEN"
       game.stamp  = "CAIDAN"
       game.save!
