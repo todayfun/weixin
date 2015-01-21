@@ -271,9 +271,9 @@ class CaidanController < ApplicationController
     @wxdata = wxdata()
     @wxdata[:link] = url_for(:action=>"gameview")
     t = Time.now.utc
-    @cnt = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").order("score asc").count
+    @cnt = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").joins("join fans on fans.openid=plays.owner").count
     
-    plays = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").joins("join fans on fans.openid=plays.owner").select("plays.*,fans.nickname").order("score asc").limit(50)
+    plays = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").joins("join fans on fans.openid=plays.owner").select("plays.*,fans.nickname").order("score asc").limit(100)
     @topn = []
     plays.each do |p|      
       state = p.args["state"] # egg_name,done_cnt, todo_cnt
