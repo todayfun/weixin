@@ -138,23 +138,23 @@ class CaidanController < ApplicationController
       if @play
         if openid == @play.owner
           if _has_played?(@play,openid)            
-            @banner = _show_egg(@play,%{<div class="btn btn-lg btn-danger">您已经砸过啦</div>})
+            @banner = _show_egg(@play,openid,%{<div class="btn btn-lg btn-danger">您已经砸过啦</div>})
             
             #@btn_links = %{找朋友帮我砸 我的砸蛋记录}
             link = view_context.link_to(%{<div class="btn btn-sm btn-danger">找朋友帮我砸</div>}.html_safe,"javascript:void()",:onclick=>"showShare();")            
             link.concat view_context.link_to(%{<div class="btn btn-sm btn-danger">我的砸蛋记录</div>}.html_safe, url_for(:action=>"playhistory",:play=>@play.guid))            
             @btn_links << link
           else            
-            @banner = _show_egg(@play,view_context.link_to(%{<div class="btn btn-lg btn-danger">自己砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
+            @banner = _show_egg(@play,openid,view_context.link_to(%{<div class="btn btn-lg btn-danger">自己砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
           end                
         else          
           if _has_played?(@play,openid)
-            @banner =  _show_egg(@play,%{<div class="btn btn-lg btn-danger">您已经帮TA砸过啦</div>})
+            @banner =  _show_egg(@play,openid,%{<div class="btn btn-lg btn-danger">您已经帮TA砸过啦</div>})
             
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">找朋友帮TA砍</div>}.html_safe,"#",:onclick=>"showShare();")
           else
-            @banner = _show_egg(@play,view_context.link_to(%{<div class="btn btn-lg btn-danger">帮TA砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
+            @banner = _show_egg(@play,openid,view_context.link_to(%{<div class="btn btn-lg btn-danger">帮TA砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))                     
           end
         end
@@ -340,17 +340,23 @@ class CaidanController < ApplicationController
     html
   end
   
-  def _show_egg(play,label)
+  def _show_egg(play,openid,label)
     args = play.args
     state = args["state"]
     egg_name = args["selected"]
     
     # egg: ["红蛋",50,"Paul Frank钱包"]
+    msg = if state[2] > 0
+      "已砸#{state[1]}次，还需砸#{state[2]}次就碎啦，加油！"
+    else
+      (play.owner==openid) ? "已经砸开啦，快去领奖吧!领奖识别码:#{args["AUTH_CODE"]}" : "已经砸开啦，快叫TA去领奖吧!"
+    end
+    
     %{
     <div class="kan-section center">
         <img class="inlineblock" src="/#{egg_name}.png" alt="">
     </div>
-    <div class="center red">已砸#{state[1]}次，还需砸#{state[2]}次就碎啦，加油！</div>
+    <div class="center red">#{msg}</div>
     <br/>
     #{label}
     }
@@ -409,7 +415,7 @@ class CaidanController < ApplicationController
         play.score = egg[1]
       end
       
-      play.score -= 1
+      play.score -= 1 if play.score.to_i > 0
       todo_cnt = play.score.to_i      
       args["state"] = [egg[0],(egg[1]-todo_cnt),todo_cnt] # egg_name,done_cnt, todo_cnt
       friends << openid
@@ -421,7 +427,12 @@ class CaidanController < ApplicationController
       play.save!
       
       if todo_cnt == 0        
-        if openid == play.owner        
+        if openid == play.owner
+          guid = WeixinHelper.guid()
+          args["AUTH_CODE"] = guid[0,6]
+          play.args = args
+          play.save
+            
           notice[:msg] = %{恭喜您，已经砸开了#{egg[0]}，快去领取大奖吧！}
           notice[:type] = "good"
         else
