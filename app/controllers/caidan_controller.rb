@@ -204,7 +204,7 @@ class CaidanController < ApplicationController
           redirect_url = url_for(:play=>@play.guid,:action=>"playview")
         else
           @label = "doplay fail: 还没订阅公众号"
-          cookies[:doplay_url] = request.url
+          cookies[:dozadan_url] = request.url
           redirect_url = @@subscribe_url
         end
       else
@@ -225,8 +225,8 @@ class CaidanController < ApplicationController
       cookies[:from_weixin] = @game.guid
     end
     
-    if !cookies[:doplay_url].blank?
-      redirect_url = cookies[:doplay_url]      
+    if !cookies[:dozadan_url].blank?
+      redirect_url = cookies[:dozadan_url]      
     end
     
     respond_to do |format|
