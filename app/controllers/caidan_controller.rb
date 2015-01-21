@@ -5,7 +5,7 @@ class CaidanController < ApplicationController
 
   def wxdata
     wxdata = {
-    :title=>"幸福彩蛋大家砸，砸碎大奖拿回家，蛋蛋有奖，门槛低，拿奖易！",
+    :title=>"砸彩蛋，拿大奖，砸38次，巴宝莉大牌包包触手可及！",
     :img_url=>url_for(:controller=>"zadan.jpg"),
     :link=>url_for(:action=>"gameview"),
     :desc=>"红蛋、黄蛋、蓝蛋、彩蛋，五彩缤纷的幸福彩蛋等你来砸，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！快召集你的蛋友来帮忙砸蛋吧！"
