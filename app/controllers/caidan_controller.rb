@@ -274,13 +274,16 @@ class CaidanController < ApplicationController
     @cnt = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").order("score asc").count
     
     plays = Play.where("game_guid='#{@game.guid}' and start_at < '#{t}'").joins("join fans on fans.openid=plays.owner").select("plays.*,fans.nickname").order("score asc").limit(50)
-    @topn = plays.map do |p|      
+    @topn = []
+    plays.each do |p|      
       state = p.args["state"] # egg_name,done_cnt, todo_cnt
-      name = p.nickname
-      next if name.length < 4
+      name = p.nickname.dup      
+      next if name.blank?
+      
       name[1]="."
-      name[2]="."      
-      [name, state[0],state[1], state[2]]
+      name[2]="."
+      name[3]=p.nickname[-1]
+      @topn << [name, state[0],state[1], state[2]]
     end
     
     respond_to do |format|
@@ -404,8 +407,8 @@ class CaidanController < ApplicationController
       friend_plays = play.friend_plays
       
       # egg: ["红蛋",50,"Paul Frank钱包"]
-      if friends.empty?
-        egg = args[args["selected"]]
+      egg = args[args["selected"]]
+      if friends.empty?        
         play.score = egg[1]
       end
       
