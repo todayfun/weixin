@@ -349,7 +349,7 @@ class CaidanController < ApplicationController
     msg = if state[2] > 0
       "已砸#{state[1]}次，还需砸#{state[2]}次就碎啦，加油！"
     else
-      (play.owner==openid) ? "已经砸开啦，快去领奖吧!领奖识别码:#{args["AUTH_CODE"]}" : "已经砸开啦，快叫TA去领奖吧!"
+      (play.owner==openid) ? "已经砸开啦! 联系微信号 chongai-tianshi 领奖吧，领奖识别码:#{args["AUTH_CODE"]}" : "已经砸开啦，快叫TA去领奖吧!"
     end
     
     %{
