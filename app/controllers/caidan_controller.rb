@@ -279,10 +279,7 @@ class CaidanController < ApplicationController
       state = p.args["state"] # egg_name,done_cnt, todo_cnt
       name = p.nickname.dup      
       next if name.blank?
-      
-      name[1]="."
-      name[2]="."
-      name[3]=p.nickname[-1]
+      name = "#{name[0]}..#{name[-1]}"
       @topn << [name, state[0],state[1], state[2]]
     end
     
