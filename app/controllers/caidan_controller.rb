@@ -2,13 +2,13 @@
 class CaidanController < ApplicationController
   layout "caidan"  
   @@subscribe_url = "http://mp.weixin.qq.com/s?biz=MzA3OTg5MzMxNg==&mid=204493713&idx=1&sn=0b03c8ebbb9303882d0208c992a48c95#rd"
-
+  @@jiangpin_url ="http://mp.weixin.qq.com/s?__biz=MzA3OTg5MzMxNg==&mid=205195979&idx=1&sn=7163718ad49c5f0723a1041f2d8f091e#rd"
   def wxdata
     wxdata = {
     :title=>"砸彩蛋，拿大奖，砸38次，巴宝莉大牌包包触手可及！",
     :img_url=>url_for(:controller=>"zadan.jpg"),
     :link=>url_for(:action=>"gameview"),
-    :desc=>"红蛋、黄蛋、蓝蛋、彩蛋，五彩缤纷的幸福彩蛋等你来砸，蛋蛋有奖，蛋砸碎了蛋里的宝贝就是你的啦！快召集你的蛋友来帮忙砸蛋吧！"
+    :desc=>"红蛋-手机刷卡器、黄蛋-COACH钱包、蓝蛋-MK笑脸包、彩蛋-BURBERRY托特包，一人砸一下，蛋砸碎了奖品就是你的啦！点击页面底部“赢家晒奖品”，看看都有哪些幸运的家伙吧！"
     }
     
     wxdata
@@ -43,7 +43,7 @@ class CaidanController < ApplicationController
     redirect_url = nil            
     openid = _get_openid()    
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
+      redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
       if params[:from_weixin] == "zhongqi"
@@ -62,7 +62,7 @@ class CaidanController < ApplicationController
           @banner = _select_eggs
           
           @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋规则</div>}.html_safe,url_for(:action=>"rule"))            
-          @tair_links << view_context.link_to(%{<div class="kan-section tight">奖品展示</div>}.html_safe,url_for(:action=>"jiangpin"))
+          @tair_links << view_context.link_to(%{<div class="kan-section tight">奖品展示</div>}.html_safe,@@jiangpin_url)
           @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋排行</div>}.html_safe,url_for(:action=>"topn"))
         end
       end
@@ -84,7 +84,7 @@ class CaidanController < ApplicationController
     
     openid = _get_openid()
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
+      redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
       egg_name = params[:caidan]||"egg_red"
@@ -132,7 +132,7 @@ class CaidanController < ApplicationController
     @tair_links = []
     openid = _get_openid()    
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
+      redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
       if @play
@@ -154,14 +154,14 @@ class CaidanController < ApplicationController
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">找朋友帮TA砍</div>}.html_safe,"#",:onclick=>"showShare();")
           else
-            @banner = _show_egg(@play,openid,view_context.link_to(%{<div class="btn btn-lg btn-danger">帮TA砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
+            @banner = _show_egg(@play,openid,view_context.link_to(%{<div class="btn btn-lg btn-danger">点这里关注微信号，帮TA砸蛋</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
             @btn_links << view_context.link_to(%{<div class="btn btn-lg btn-danger">我也要砸彩蛋</div>}.html_safe,url_for(:action=>"gameview"))                     
           end
         end
         
         # @tair_links = %{活动规则 奖品展示 幸福的人}
         @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋规则</div>}.html_safe,url_for(:action=>"rule"))            
-        @tair_links << view_context.link_to(%{<div class="kan-section tight">奖品展示</div>}.html_safe,url_for(:action=>"jiangpin"))
+        @tair_links << view_context.link_to(%{<div class="kan-section tight">奖品展示</div>}.html_safe,@@jiangpin_url)
         @tair_links << view_context.link_to(%{<div class="kan-section tight">砸蛋排行</div>}.html_safe,url_for(:action=>"topn"))
       else
         @banner = "playview fail: cant found play"
@@ -194,7 +194,7 @@ class CaidanController < ApplicationController
     openid = _get_openid()
     redirect_url = nil
     if openid.nil?
-      redirect_url = WeixinHelper.with_auth_userinfo(request.url)
+      redirect_url = WeixinHelper.with_auth(request.url)
       @banner = "cant get openid"
     else
       if @play
@@ -372,10 +372,10 @@ class CaidanController < ApplicationController
     #return "boyii2"
     openid = cookies[:weixin_openid]    
     if openid.nil? && params[:code]
-      userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
-      Fans.save_by_userinfo userinfo
-      openid = userinfo['openid']
-      
+      #userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
+      #Fans.save_by_userinfo userinfo
+      #openid = userinfo['openid']
+      openid = WeixinHelper.query_openid(params[:code])
       cookies[:weixin_openid] = { :value => openid, :expires => 30.minutes.from_now }
       Rails.logger.info("Get openid from weixin")
     end
