@@ -139,10 +139,14 @@ class CaidanController < ApplicationController
         if openid == @play.owner
           fans = Fans.find_by_openid openid
           if fans.nil?
+            Rails.logger.info("Fans of #{openid}: none")
             openid = _get_openid("userinfo")
+            Rails.logger.info("Fans got: #{openid}")         
             if openid.nil?
               redirect_url = WeixinHelper.with_auth_userinfo(request.url)
             end
+          else
+            Rails.logger.info("Fans of #{openid}: #{fans.id}")
           end
           
           if openid
