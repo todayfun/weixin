@@ -137,6 +137,15 @@ class CaidanController < ApplicationController
     else
       if @play
         if openid == @play.owner
+          fans = Fans.find_by_openid openid
+          if fans.nil?
+            openid = _get_openid("userinfo")
+            if openid.nil?
+              redirect_url = WeixinHelper.with_auth_userinfo(request.url)
+            end
+          end
+          
+          if openid
           if _has_played?(@play,openid)            
             @banner = _show_egg(@play,openid,%{<div class="btn btn-lg btn-danger">您已经砸过啦</div>})
             
@@ -146,7 +155,8 @@ class CaidanController < ApplicationController
             @btn_links << link
           else            
             @banner = _show_egg(@play,openid,view_context.link_to(%{<div class="btn btn-lg btn-danger">自己砸一下</div>}.html_safe,url_for(:play=>@play.guid,:action=>"doplay")))
-          end                
+          end
+          end
         else          
           if _has_played?(@play,openid)
             @banner =  _show_egg(@play,openid,%{<div class="btn btn-lg btn-danger">您已经帮TA砸过啦</div>})
@@ -368,14 +378,19 @@ class CaidanController < ApplicationController
     }
   end
   
-  def _get_openid
+  def _get_openid(flg="openid")
     #return "boyii2"
     openid = cookies[:weixin_openid]    
     if openid.nil? && params[:code]
-      #userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
-      #Fans.save_by_userinfo userinfo
-      #openid = userinfo['openid']
-      openid = WeixinHelper.query_openid(params[:code])
+      if flg=="userinfo"
+        userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
+        Fans.save_by_userinfo userinfo
+        openid = userinfo['openid']
+      else      
+        openid = WeixinHelper.query_openid(params[:code])
+      end
+      
+      openid = nil if openid.blank?
       cookies[:weixin_openid] = { :value => openid, :expires => 30.minutes.from_now }
       Rails.logger.info("Get openid from weixin")
     end
