@@ -140,8 +140,9 @@ class CaidanController < ApplicationController
           fans = Fans.find_by_openid openid
           if fans.nil?
             Rails.logger.info("Fans of #{openid}: none")
-            openid = _get_openid("userinfo")
-            Rails.logger.info("Fans got: #{openid}")         
+            openid = _get_openid("userinfo",true)
+            fans = Fans.find_by_openid openid
+            Rails.logger.info("Fans got: #{fans.try :id}")         
             if openid.nil?
               redirect_url = WeixinHelper.with_auth_userinfo(request.url)
             end
@@ -382,10 +383,10 @@ class CaidanController < ApplicationController
     }
   end
   
-  def _get_openid(flg="openid")
+  def _get_openid(flg="openid",force=false)
     #return "boyii2"
-    openid = cookies[:weixin_openid]    
-    if openid.nil? && params[:code]
+    openid = cookies[:weixin_openid]
+    if (openid.nil? || force) && params[:code]
       if flg=="userinfo"
         userinfo = WeixinHelper.query_userinfo_by_auth(params[:code])
         Fans.save_by_userinfo userinfo
